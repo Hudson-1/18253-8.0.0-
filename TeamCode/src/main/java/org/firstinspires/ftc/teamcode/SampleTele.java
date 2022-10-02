@@ -10,7 +10,9 @@ public class SampleTele extends LinearOpMode {
         Robot robot = new Robot(gamepad1, gamepad2, hardwareMap);
 
         waitForStart();
-while(opModeIsActive())
-        robot.update();
+
+        while (opModeIsActive()) {
+            robot.update();
+        }
     }
 }
