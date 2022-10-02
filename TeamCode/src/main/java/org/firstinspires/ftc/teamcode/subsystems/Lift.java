@@ -117,6 +117,19 @@ public class Lift implements Subsystem {
                 } else {
                     setLiftPosition(LiftState.REST, 0);
                 }
+
+                if(g.a) {
+                    state = States.LOW;
+                }
+
+                if(g.b) {
+                    state = States.MID;
+                }
+
+                if(g.right_bumper) {
+                    state = States.HIGH;
+                }
+
                 break;
             case LOW:
                 setLiftPosition(LiftState.LOW, 0);
