@@ -31,6 +31,8 @@ public class Lift implements Subsystem {
 
     // this is the time we wait for the claw to close before moving.
     public static double WAIT_FOR_CLAW_MILLISECONDS = 800;
+    // when putting back in, we wait this amount of time after we start moving the v4b
+    public static double WAIT_FOR_V4B_IN = 400;
 
     // change claw
 
@@ -39,7 +41,7 @@ public class Lift implements Subsystem {
 
     // change v4b
 
-    public static double rest = 0.65;
+    public static double rest = 0.61;
     public static double front = 0.95;
     public static double back = 0.01;
 
@@ -120,10 +122,12 @@ public class Lift implements Subsystem {
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
                     resetServos();
-                    if(timer.milliseconds() < 600 + WAIT_FOR_CLAW_MILLISECONDS) {
-                        setLiftPosition(LiftState.CHECK, 0);
-                    } else {
-                        setLiftPosition(LiftState.REST, 0);
+                    if (timer.milliseconds() > WAIT_FOR_V4B_IN + WAIT_FOR_CLAW_MILLISECONDS) {
+                        if(timer.milliseconds() < 600 + WAIT_FOR_V4B_IN) {
+                            setLiftPosition(LiftState.CHECK, 0);
+                        } else {
+                            setLiftPosition(LiftState.REST, 0);
+                        }
                     }
                 }
 
