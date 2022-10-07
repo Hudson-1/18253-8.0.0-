@@ -23,7 +23,7 @@ public class MecDrive implements Subsystem {
 
     @Override
     public void update() {
-        Pose2d drivePower = new Pose2d(-g.left_stick_x, -g.left_stick_y, -g.right_stick_x);
+        Pose2d drivePower = new Pose2d(-g.left_stick_y, -g.left_stick_x, -g.right_stick_x);
         drive.setWeightedDrivePower(drivePower);
         drive.update();
     }

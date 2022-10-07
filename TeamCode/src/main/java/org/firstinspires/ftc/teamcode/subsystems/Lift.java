@@ -23,7 +23,7 @@ public class Lift implements Subsystem {
     public static double TICKS_PER_REV = MOTOR_RATIO * 28.0;
     public static double GEAR_RATIO = 1;
 
-    public static double kP = 0;
+    public static double kP = 0.5;
     public static double kI = 0;
     public static double kD = 0;
     public static double kF = 0;
@@ -31,14 +31,14 @@ public class Lift implements Subsystem {
 
     // change claw
 
-    public static double clawOpen = 0;
-    public static double clawClose = 1;
+    public static double clawOpen = 0.3;
+    public static double clawClose = 0;
 
     // change v4b
 
-    public static double rest = 0.4;
-    public static double front = 0;
-    public static double back = 1;
+    public static double rest = 0.695;
+    public static double front = 0.95;
+    public static double back = 0.1;
 
     Servo v4bL;
     Servo v4bR;
@@ -83,20 +83,21 @@ public class Lift implements Subsystem {
         claw = map.get(Servo.class, "claw");
 
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
-        m2.setDirection(DcMotorSimple.Direction.REVERSE);
+      //  m2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         m1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         m2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         m1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         m2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
+        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         resetServos();
     }
 
     public void resetServos() {
-        v4bL.setPosition(front);
-        v4bR.setPosition(1-front);
+        v4bL.setPosition(1-rest);
+        v4bR.setPosition(rest);
         claw.setPosition(clawOpen);
     }
 
@@ -108,7 +109,7 @@ public class Lift implements Subsystem {
     @Override
     public void update() {
         updatePID();
-
+        System.out.println("state: " + state);
         switch(state) {
             case REST:
                 resetServos();
@@ -158,7 +159,7 @@ public class Lift implements Subsystem {
                 }
                 break;
             case HIGH:
-                setLiftPosition(LiftState.HIGH, 0);
+                setLiftPosition(LiftState.HIGH, 5);
                 grab();
 
                 if(getCurrentPosition() > 4.0) {
@@ -184,14 +185,19 @@ public class Lift implements Subsystem {
     }
 
     public void back() {
-        v4bL.setPosition(back);
         v4bL.setPosition(1-back);
+        v4bR.setPosition(back);
+
+    }
+    public void rest() {
+        v4bL.setPosition(rest);
+        v4bR.setPosition(1-rest);
 
     }
 
     public void front() {
-        v4bL.setPosition(front);
         v4bL.setPosition(1-front);
+        v4bR.setPosition(front);
     }
 
     public void setLiftPosition(LiftState ls, double height) {
@@ -224,6 +230,10 @@ public class Lift implements Subsystem {
         if(target == 0 && encoderTicksToInches(m1.getCurrentPosition()) < 0.2) {
             pid = 0;
         }
+
+        System.out.println("target is: " + target);
+        System.out.println("lift pos is: " + encoderTicksToInches(m1.getCurrentPosition()));
+        System.out.println("pid power: " + pid);
 
         m1.setPower(pid);
         m2.setPower(pid);
