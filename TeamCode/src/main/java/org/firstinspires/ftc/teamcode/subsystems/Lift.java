@@ -29,6 +29,9 @@ public class Lift implements Subsystem {
     public static double kF = 0;
     private double target;
 
+    // this is the time we wait for the claw to close before moving.
+    public static double WAIT_FOR_CLAW_MILLISECONDS = 800;
+
     // change claw
 
     public static double clawOpen = 0.3;
@@ -112,7 +115,12 @@ public class Lift implements Subsystem {
         System.out.println("state: " + state);
         switch(state) {
             case REST:
-                resetServos();
+                claw.setPosition(clawOpen); // preemptively open claw
+
+                // after the timer has run enough, it will call reset servos and put the v4b back in
+                if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
+                    resetServos();
+                }
                 if(timer.milliseconds() < 600) {
                     setLiftPosition(LiftState.CHECK, 0);
                 } else {
@@ -121,51 +129,58 @@ public class Lift implements Subsystem {
 
                 if(g.a) {
                     state = States.LOW;
+                    grab();
+                    timer.reset();
                 }
 
                 if(g.b) {
                     state = States.MID;
+                    grab();
+                    timer.reset();
                 }
 
                 if(g.right_bumper) {
                     state = States.HIGH;
+                    grab();
+                    timer.reset();
                 }
 
                 break;
             case LOW:
-                setLiftPosition(LiftState.LOW, 0);
-                grab();
-
-                if(getCurrentPosition() > 4.0) {
-                    back();
+                if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
+                    setLiftPosition(LiftState.LOW, 0);
+                    if(getCurrentPosition() > 4.0) {
+                        back();
+                    }
                 }
-
+                grab();
                 if(g.left_bumper) {
                     timer.reset();
                     state = States.REST;
                 }
                 break;
             case MID:
-                setLiftPosition(LiftState.MID, 0);
-                grab();
+                if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
+                    setLiftPosition(LiftState.MID, 0);
+                    if(getCurrentPosition() > 4.0) {
+                        back();
+                    }
 
-                if(getCurrentPosition() > 4.0) {
-                    back();
                 }
-
+                grab();
                 if(g.left_bumper) {
                     timer.reset();
                     state = States.REST;
                 }
                 break;
             case HIGH:
-                setLiftPosition(LiftState.HIGH, 5);
-                grab();
-
-                if(getCurrentPosition() > 4.0) {
-                    back();
+                if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
+                    setLiftPosition(LiftState.HIGH, 5);
+                    if(getCurrentPosition() > 4.0) {
+                        back();
+                    }
                 }
-
+                grab();
                 if(g.left_bumper) {
                     timer.reset();
                     state = States.REST;
