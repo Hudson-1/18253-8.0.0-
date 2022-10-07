@@ -39,9 +39,9 @@ public class Lift implements Subsystem {
 
     // change v4b
 
-    public static double rest = 0.695;
+    public static double rest = 0.65;
     public static double front = 0.95;
-    public static double back = 0.1;
+    public static double back = 0.01;
 
     Servo v4bL;
     Servo v4bR;
