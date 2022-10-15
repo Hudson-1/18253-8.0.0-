@@ -280,7 +280,7 @@ public class Lift implements Subsystem {
             pid2 = 0;
         }
 
-        if (target < 2 && (error1 > 2 || error2 > 2)) {
+        if (target_local < 2) {
             pid1 = Range.clip(pid1,-DECENT_POWER_MAX,DECENT_POWER_MAX);
             pid2 = Range.clip(pid2,-DECENT_POWER_MAX,DECENT_POWER_MAX);
         }
