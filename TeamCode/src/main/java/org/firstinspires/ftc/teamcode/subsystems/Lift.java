@@ -244,19 +244,24 @@ public class Lift implements Subsystem {
     }
 
     public void updatePID() {
-        double error = target - encoderTicksToInches(m1.getCurrentPosition());
-        double pid = error*kP + Math.copySign(kF, error);
+        double error1 = target - encoderTicksToInches(m1.getCurrentPosition());
+        double pid1 = error1*kP + Math.copySign(kF, error1);
 
+        double error2 = target - encoderTicksToInches(m2.getCurrentPosition());
+        double pid2 = error2*kP + Math.copySign(kF, error2);
         if(target == 0 && encoderTicksToInches(m1.getCurrentPosition()) < 0.2) {
-            pid = 0;
+            pid1 = 0;
+        }
+        if(target == 0 && encoderTicksToInches(m2.getCurrentPosition()) < 0.2) {
+            pid2 = 0;
         }
 
         System.out.println("target is: " + target);
         System.out.println("lift pos is: " + encoderTicksToInches(m1.getCurrentPosition()));
-        System.out.println("pid power: " + pid);
+        System.out.println("pid power: " + pid1);
 
-        m1.setPower(pid);
-        m2.setPower(pid);
+        m1.setPower(pid1);
+        m2.setPower(pid2);
     }
 
     public void setTarget(double target) {
