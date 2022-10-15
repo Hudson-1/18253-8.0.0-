@@ -214,6 +214,8 @@ public class Lift implements Subsystem {
 
                 break;
         }
+
+        previous_target = target;
     }
 
     private void regenerate_profile() {
