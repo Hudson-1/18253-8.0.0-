@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.BensMagic.AsymmetricProfile.AsymmetricMotionProfile;
+import org.firstinspires.ftc.teamcode.BensMagic.AsymmetricProfile.MotionConstraint;
 
 @Config
 public class Lift implements Subsystem {
@@ -28,6 +30,7 @@ public class Lift implements Subsystem {
     public static double kD = 0;
     public static double kF = 0;
     private double target;
+    private double previous_target = 0;
 
     // this is the time we wait for the claw to close before moving.
     public static double WAIT_FOR_CLAW_MILLISECONDS = 800;
@@ -41,13 +44,21 @@ public class Lift implements Subsystem {
 
     // change v4b
 
-    public static double rest = 0.62;
+    public static double rest = .595;
     public static double front = 0.95;
     public static double back = 0.01;
 
     Servo v4bL;
     Servo v4bR;
     Servo claw;
+
+    MotionConstraint slide_constraints = new MotionConstraint(10,10,10);
+    AsymmetricMotionProfile slide_profile_m = new AsymmetricMotionProfile(0,0,slide_constraints);
+    ElapsedTime profile_timer = new ElapsedTime();
+
+    private boolean use_motion_profile = true;
+
+
 
     public enum States {
         REST,
@@ -113,6 +124,11 @@ public class Lift implements Subsystem {
 
     @Override
     public void update() {
+
+        if (previous_target != target) {
+            regenerate_profile();
+        }
+
         updatePID();
         System.out.println("state: " + state);
         switch(state) {
@@ -200,6 +216,11 @@ public class Lift implements Subsystem {
         }
     }
 
+    private void regenerate_profile() {
+        slide_profile_m = new AsymmetricMotionProfile(encoderTicksToInches(m1.getCurrentPosition()), target, slide_constraints);
+        profile_timer.reset();
+    }
+
     public void grab() {
         claw.setPosition(clawClose);
     }
@@ -244,10 +265,17 @@ public class Lift implements Subsystem {
     }
 
     public void updatePID() {
-        double error1 = target - encoderTicksToInches(m1.getCurrentPosition());
+
+        double target_local = target;
+
+        if (use_motion_profile) {
+            target_local = slide_profile_m.calculate(profile_timer.seconds()).getX();
+        }
+
+        double error1 = target_local - encoderTicksToInches(m1.getCurrentPosition());
         double pid1 = error1*kP + Math.copySign(kF, error1);
 
-        double error2 = target - encoderTicksToInches(m2.getCurrentPosition());
+        double error2 = target_local - encoderTicksToInches(m2.getCurrentPosition());
         double pid2 = error2*kP + Math.copySign(kF, error2);
         if(target == 0 && encoderTicksToInches(m1.getCurrentPosition()) < 0.2) {
             pid1 = 0;
