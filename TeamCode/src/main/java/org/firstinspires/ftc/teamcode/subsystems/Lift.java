@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.BensMagic.AsymmetricProfile.AsymmetricMotionProfile;
@@ -20,6 +21,12 @@ public class Lift implements Subsystem {
     DcMotorEx m2;
     Gamepad g;
 
+    public static double REST_slides = 0.0;
+    public static double CHECK_slides = 4.0;
+    public static double LOW_slides = 11.0;
+    public static double MID_slides = 18.0;
+    public static double HIGH_slides = 24.0;
+
     public static double SPOOL_SIZE_IN = 0.5; // radius in inches
     public static double MOTOR_RATIO = 3.7;
     public static double TICKS_PER_REV = MOTOR_RATIO * 28.0;
@@ -30,7 +37,8 @@ public class Lift implements Subsystem {
     public static double kD = 0;
     public static double kF = 0;
     private double target;
-    private double previous_target = 0;
+
+    public static double DECENT_POWER_MAX = 0.2;
 
     // this is the time we wait for the claw to close before moving.
     public static double WAIT_FOR_CLAW_MILLISECONDS = 800;
@@ -52,11 +60,7 @@ public class Lift implements Subsystem {
     Servo v4bR;
     Servo claw;
 
-    MotionConstraint slide_constraints = new MotionConstraint(10,10,10);
-    AsymmetricMotionProfile slide_profile_m = new AsymmetricMotionProfile(0,0,slide_constraints);
-    ElapsedTime profile_timer = new ElapsedTime();
 
-    private boolean use_motion_profile = true;
 
 
 
@@ -125,9 +129,6 @@ public class Lift implements Subsystem {
     @Override
     public void update() {
 
-        if (previous_target != target) {
-            regenerate_profile();
-        }
 
         updatePID();
         System.out.println("state: " + state);
@@ -215,13 +216,9 @@ public class Lift implements Subsystem {
                 break;
         }
 
-        previous_target = target;
     }
 
-    private void regenerate_profile() {
-        slide_profile_m = new AsymmetricMotionProfile(encoderTicksToInches(m1.getCurrentPosition()), target, slide_constraints);
-        profile_timer.reset();
-    }
+
 
     public void grab() {
         claw.setPosition(clawClose);
@@ -246,19 +243,19 @@ public class Lift implements Subsystem {
     public void setLiftPosition(LiftState ls, double height) {
         switch(ls) {
             case REST:
-                target = 0.0;
+                target = REST_slides;
                 break;
             case CHECK:
-                target = 4.0; // this is your minimum position where your v4b can go in (change as needed)
+                target = CHECK_slides; // this is your minimum position where your v4b can go in (change as needed)
                 break;
             case LOW:
-                target = 11.0;
+                target = LOW_slides;
                 break;
             case MID:
-                target = 18.0;
+                target = MID_slides;
                 break;
             case HIGH:
-                target = 24.0;
+                target = HIGH_slides;
                 break;
             case STACK:
                 target = 5.0 + height*(15.4/25.4);
@@ -270,9 +267,6 @@ public class Lift implements Subsystem {
 
         double target_local = target;
 
-        if (use_motion_profile) {
-            target_local = slide_profile_m.calculate(profile_timer.seconds()).getX();
-        }
 
         double error1 = target_local - encoderTicksToInches(m1.getCurrentPosition());
         double pid1 = error1*kP + Math.copySign(kF, error1);
@@ -284,6 +278,11 @@ public class Lift implements Subsystem {
         }
         if(target == 0 && encoderTicksToInches(m2.getCurrentPosition()) < 0.2) {
             pid2 = 0;
+        }
+
+        if (target < 2 && (error1 > 2 || error2 > 2)) {
+            pid1 = Range.clip(pid1,-DECENT_POWER_MAX,DECENT_POWER_MAX);
+            pid2 = Range.clip(pid2,-DECENT_POWER_MAX,DECENT_POWER_MAX);
         }
 
         System.out.println("target is: " + target);
