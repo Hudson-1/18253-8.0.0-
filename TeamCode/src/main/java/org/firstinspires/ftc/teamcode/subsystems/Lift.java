@@ -23,9 +23,9 @@ public class Lift implements Subsystem {
 
     public static double REST_slides = 0.0;
     public static double CHECK_slides = 4.0;
-    public static double LOW_slides = 11.0;
-    public static double MID_slides = 18.0;
-    public static double HIGH_slides = 24.0;
+    public static double LOW_slides = 9.2;
+    public static double MID_slides = 19.0;
+    public static double HIGH_slides = 28.5;
 
     public static double SPOOL_SIZE_IN = 0.5; // radius in inches
     public static double MOTOR_RATIO = 3.7;
@@ -38,10 +38,10 @@ public class Lift implements Subsystem {
     public static double kF = 0;
     private double target;
 
-    public static double DECENT_POWER_MAX = 0.2;
+    public static double DECENT_POWER_MAX = 0.6;
 
     // this is the time we wait for the claw to close before moving.
-    public static double WAIT_FOR_CLAW_MILLISECONDS = 800;
+    public static double WAIT_FOR_CLAW_MILLISECONDS = 400;
     // when putting back in, we wait this amount of time after we start moving the v4b
     public static double WAIT_FOR_V4B_IN = 400;
 
