@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.MecDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ public class Robot {
  //   Shooter shooter;
     Lift lift;
     List<Subsystem> list;
+
 
     public Robot(Gamepad gamepad1, Gamepad gamepad2, HardwareMap map) {
         drive = new MecDrive(gamepad1);
@@ -29,6 +31,7 @@ public class Robot {
         list.add(drive);
         list.add(intake);
      //   list.add(shooter);
+
         list.add(lift);
 
         for(Subsystem s : list) {

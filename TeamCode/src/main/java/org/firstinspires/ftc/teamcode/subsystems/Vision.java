@@ -87,6 +87,8 @@ public class Vision implements Subsystem {
     //
     class VisionPipeline extends OpenCvPipeline {
 
+
+        private double matTotal = 0;
         private Mat workingMatrix = new Mat();
 
         @Override
@@ -109,6 +111,14 @@ public class Vision implements Subsystem {
             }
             return workingMatrix;
         }
+    }
+
+    public double getMatTotal() {
+        return visionPipeline.matTotal;
+    }
+
+    public VisionPipeline getVisionPipeline() {
+        return visionPipeline;
     }
 }
 
