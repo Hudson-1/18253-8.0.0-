@@ -35,7 +35,8 @@ public class Vision implements Subsystem {
     public static double valueMax = 250;
 
     private enum VisionType {
-        BGR2HSVcolor
+        BGR2HSVcolor,
+        BGR2HSVcolor3
     }
 
     OpenCvCamera webcam;
@@ -87,6 +88,8 @@ public class Vision implements Subsystem {
     //
     class VisionPipeline extends OpenCvPipeline {
 
+
+        private double matTotal = 0;
         private Mat workingMatrix = new Mat();
 
         @Override
@@ -105,10 +108,27 @@ public class Vision implements Subsystem {
                     Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
                     Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
                             new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
+
+                    matTotal = Core.sumElems(workingMatrix).val[0];
                 break;
+
+                case BGR2HSVcolor3:
+
+
+
+                    break;
+
             }
             return workingMatrix;
         }
+    }
+
+    public double getMatTotal() {
+        return visionPipeline.matTotal;
+    }
+
+    public VisionPipeline getVisionPipeline() {
+        return visionPipeline;
     }
 }
 
