@@ -23,9 +23,9 @@ public class Lift implements Subsystem {
 
     public static double REST_slides = 0.0;
     public static double CHECK_slides = 4.0;
-    public static double LOW_slides = 9.2;
-    public static double MID_slides = 19.0;
-    public static double HIGH_slides = 30;
+    public static double LOW_slides = 7;
+    public static double MID_slides = 16;
+    public static double HIGH_slides = 25.5;
 
     public static double SPOOL_SIZE_IN = 0.5; // radius in inches
     public static double MOTOR_RATIO = 3.7;
@@ -41,20 +41,20 @@ public class Lift implements Subsystem {
     public static double DECENT_POWER_MAX = 0.2;
 
     // this is the time we wait for the claw to close before moving.
-    public static double WAIT_FOR_CLAW_MILLISECONDS = 400;
+    public static double WAIT_FOR_CLAW_MILLISECONDS = 500;
     // when putting back in, we wait this amount of time after we start moving the v4b
-    public static double WAIT_FOR_V4B_IN = 400;
-
+    public static double WAIT_FOR_V4B_IN = 600;
+public static double WAIT_FOR_CLAW_OPEN = 700;
     // change claw
 
-    public static double clawOpen = 0.3;
-    public static double clawClose = 0;
+    public static double clawOpen = 0.9;
+    public static double clawClose = .57;
 
     // change v4b
 
-    public static double rest = .57;
-    public static double front = 0.95;
-    public static double back = 0.01;
+    public static double rest = .85;
+    public static double front = 0;
+    public static double back = 0.85;
 
     Servo v4bL;
     Servo v4bR;
@@ -137,10 +137,10 @@ public class Lift implements Subsystem {
                 claw.setPosition(clawOpen); // preemptively open claw
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
-                if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
+                if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
                     resetServos();
                     if (timer.milliseconds() > WAIT_FOR_V4B_IN + WAIT_FOR_CLAW_MILLISECONDS) {
-                        if(timer.milliseconds() < 600 + WAIT_FOR_V4B_IN) {
+                        if(timer.milliseconds() < 600 + WAIT_FOR_CLAW_MILLISECONDS) {
                             setLiftPosition(LiftState.CHECK, 0);
                         } else {
                             setLiftPosition(LiftState.REST, 0);
