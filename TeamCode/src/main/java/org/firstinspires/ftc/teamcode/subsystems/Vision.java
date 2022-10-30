@@ -119,7 +119,7 @@ public class Vision implements Subsystem {
     }
 
     public double getColorNum() {
-        return getVisionPipeline().matTotal;
+        return (getVisionPipeline().matTotal)/1000000;
     }
 
 
