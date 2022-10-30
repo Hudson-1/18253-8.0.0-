@@ -122,6 +122,16 @@ public class Vision implements Subsystem {
         return (getVisionPipeline().matTotal)/1000000;
     }
 
+    public String returnVisionState() {
+
+        if (getColorNum() > .3) {
+            return "3";
+        } else if (getColorNum() < 0.1) {
+            return "1";
+        } else {
+            return "2";
+        }
+    }
 
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;

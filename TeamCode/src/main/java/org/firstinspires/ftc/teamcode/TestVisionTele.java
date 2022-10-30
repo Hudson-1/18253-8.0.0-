@@ -23,7 +23,7 @@ public class TestVisionTele extends LinearOpMode {
 
         while (opModeIsActive()) {
             robot.update();
-            dashboardTelemetry.addData("Vision Output:", vision.getColorNum());
+            dashboardTelemetry.addData("Vision Output:", vision.returnVisionState());
             dashboardTelemetry.update();
         }
     }
