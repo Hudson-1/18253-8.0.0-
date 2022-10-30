@@ -122,6 +122,7 @@ public class Vision implements Subsystem {
         return getVisionPipeline().matTotal;
     }
 
+
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
     }
