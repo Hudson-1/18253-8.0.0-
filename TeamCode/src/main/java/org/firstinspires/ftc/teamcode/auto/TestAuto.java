@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.SampleTankDrive;
+import org.firstinspires.ftc.teamcode.subsystems.MecDrive;
+import org.firstinspires.ftc.teamcode.subsystems.MecDriveAuto;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Config
@@ -20,9 +22,9 @@ public class TestAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+        robot.setDrive(new MecDriveAuto(gamepad1), hardwareMap);
+        SampleMecanumDrive drive = robot.getMecDriveAuto().getDrive();
         // The type of Roadrunner drive we are using:
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         // The starting position of the robot on the field:
         Pose2d startPose = new Pose2d(-35, 64, Math.toRadians(0));

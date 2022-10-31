@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-public class MecDrive implements Subsystem {
+public class MecDriveAuto extends MecDrive {
     SampleMecanumDrive drive;
     Gamepad g;
 
-    public MecDrive(Gamepad g) {
-        this.g = g;
+    public MecDriveAuto(Gamepad g) {
+        super(g);
     }
 
     @Override
@@ -23,8 +23,6 @@ public class MecDrive implements Subsystem {
 
     @Override
     public void update() {
-        Pose2d drivePower = new Pose2d(-g.left_stick_y, -g.left_stick_x, -g.right_stick_x);
-        drive.setWeightedDrivePower(drivePower);
         drive.update();
     }
 
@@ -36,5 +34,6 @@ public class MecDrive implements Subsystem {
     public SampleMecanumDrive getDrive() {
         return drive;
     }
+
 
 }

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.MecDrive;
+import org.firstinspires.ftc.teamcode.subsystems.MecDriveAuto;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
@@ -43,5 +44,14 @@ public class Robot {
         for(Subsystem s : list) {
             s.update();
         }
+    }
+
+    public MecDrive getMecDriveAuto() {
+        return drive;
+    }
+
+    public void setDrive(MecDriveAuto autoDrive, HardwareMap map) {
+        drive = autoDrive;
+        drive.init(map);
     }
 }
