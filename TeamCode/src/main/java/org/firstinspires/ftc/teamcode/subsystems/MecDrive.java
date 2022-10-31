@@ -11,9 +11,11 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 public class MecDrive implements Subsystem {
     SampleMecanumDrive drive;
     Gamepad g;
+    boolean auto;
 
-    public MecDrive(Gamepad g) {
+    public MecDrive(Gamepad g, boolean auto) {
         this.g = g;
+        this.auto = auto;
     }
 
     @Override
@@ -23,8 +25,10 @@ public class MecDrive implements Subsystem {
 
     @Override
     public void update() {
-        Pose2d drivePower = new Pose2d(-g.left_stick_y, -g.left_stick_x, -g.right_stick_x);
-        drive.setWeightedDrivePower(drivePower);
+        if (!auto) {
+            Pose2d drivePower = new Pose2d(-g.left_stick_y, -g.left_stick_x, -g.right_stick_x);
+            drive.setWeightedDrivePower(drivePower);
+        }
         drive.update();
     }
 

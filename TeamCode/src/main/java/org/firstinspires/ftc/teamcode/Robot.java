@@ -6,9 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.MecDrive;
-import org.firstinspires.ftc.teamcode.subsystems.MecDriveAuto;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +17,13 @@ public class Robot {
  //   Shooter shooter;
     Lift lift;
     List<Subsystem> list;
+    // If the boolean is true, run auto version of robot, if false run the tele version of robot
+    boolean auto;
 
 
-    public Robot(Gamepad gamepad1, Gamepad gamepad2, HardwareMap map) {
-        drive = new MecDrive(gamepad1);
+    public Robot(Gamepad gamepad1, Gamepad gamepad2, HardwareMap map, boolean auto) {
+        this.auto = auto;
+        drive = new MecDrive(gamepad1,auto);
         intake = new Intake(gamepad1, gamepad2, true);
 
       //  shooter = new Shooter(gamepad1, true);
@@ -46,14 +47,8 @@ public class Robot {
         }
     }
 
-    public MecDrive getMecDriveAuto() {
+    public MecDrive getDriveClass() {
         return drive;
     }
 
-    public void setDrive(MecDriveAuto autoDrive, HardwareMap map) {
-        list.remove(drive);
-        drive = autoDrive;
-        drive.init(map);
-        list.add(drive);
-    }
 }

@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 public class SampleTele extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap);
+        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, false);
 
         waitForStart();
 
