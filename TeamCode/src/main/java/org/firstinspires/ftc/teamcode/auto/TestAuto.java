@@ -14,12 +14,12 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Autonomous
 public class TestAuto extends LinearOpMode {
 
-    Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, true);
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, true);
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
-        // The type of Roadrunner drive we are using:
 
         // The starting position of the robot on the field:
         Pose2d startPose = new Pose2d(-35, 64, Math.toRadians(0));
