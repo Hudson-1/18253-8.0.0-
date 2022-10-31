@@ -26,6 +26,7 @@ public class Lift implements Subsystem {
     public static double LOW_slides = 7;
     public static double MID_slides = 16;
     public static double HIGH_slides = 25.5;
+    public static double STACK_slides = 9;
 
     public static double SPOOL_SIZE_IN = 0.5; // radius in inches
     public static double MOTOR_RATIO = 3.7;
@@ -47,14 +48,15 @@ public class Lift implements Subsystem {
 public static double WAIT_FOR_CLAW_OPEN = 700;
     // change claw
 
-    public static double clawOpen = 0.9;
-    public static double clawClose = .57;
+    public static double clawOpen = 0.66;
+    public static double clawClose = .4;
 
     // change v4b
 
-    public static double rest = .85;
+    public static double rest = .31;
     public static double front = 0;
-    public static double back = 0.85;
+    public static double back = 0.9;
+    public static double stack = 0.2;
 
     Servo v4bL;
     Servo v4bR;
@@ -167,6 +169,16 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                     timer.reset();
                 }
 
+                if(g.dpad_right) {
+                    state = States.STACK;
+                    grab();
+                    timer.reset();
+                }
+                if(g.dpad_up) {
+                    state = States.STACK_DEPOSIT;
+                    claw.setPosition(clawOpen);
+                    timer.reset();
+                }
                 break;
             case LOW:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
@@ -209,10 +221,19 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                 }
                 break;
             case STACK:
+                setLiftPosition(LiftState.STACK, 0);
+                if(getCurrentPosition() > 4){
+                    stack();
 
+                }
                 break;
             case STACK_DEPOSIT:
-
+                if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
+                    setLiftPosition(LiftState.HIGH, 28);
+                    if(getCurrentPosition() > 4){
+                        front();
+                    }
+                }
                 break;
         }
 
@@ -239,7 +260,10 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         v4bL.setPosition(1-front);
         v4bR.setPosition(front);
     }
-
+    public void stack() {
+        v4bL.setPosition(1-stack);
+        v4bR.setPosition(stack);
+    }
     public void setLiftPosition(LiftState ls, double height) {
         switch(ls) {
             case REST:

@@ -2,11 +2,12 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 /*
  * Op mode for preliminary tuning of the follower PID coefficients (located in the drive base
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
  * If you are using SampleTankDrive, you should be tuning AXIAL_PID, CROSS_TRACK_PID, and HEADING_PID.
  * These coefficients can be tuned live in dashboard.
  */
+//@Disabled
 @Config
 @Autonomous(group = "drive")
 public class FollowerPIDTuner extends LinearOpMode {
@@ -39,17 +41,13 @@ public class FollowerPIDTuner extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (!isStopRequested()) {
-            TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(startPose)
+            Trajectory traj = drive.trajectoryBuilder(startPose)
                     .forward(DISTANCE)
-                    .turn(Math.toRadians(90))
-                    .forward(DISTANCE)
-                    .turn(Math.toRadians(90))
-                    .forward(DISTANCE)
-                    .turn(Math.toRadians(90))
-                    .forward(DISTANCE)
-                    .turn(Math.toRadians(90))
                     .build();
-            drive.followTrajectorySequence(trajSeq);
+            drive.followTrajectory(traj);
+            drive.turn(Math.toRadians(90));
+
+            startPose = traj.end().plus(new Pose2d(0, 0, Math.toRadians(90)));
         }
     }
 }
