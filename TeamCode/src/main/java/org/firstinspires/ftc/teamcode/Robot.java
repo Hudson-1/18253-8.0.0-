@@ -51,7 +51,9 @@ public class Robot {
     }
 
     public void setDrive(MecDriveAuto autoDrive, HardwareMap map) {
+        list.remove(drive);
         drive = autoDrive;
         drive.init(map);
+        list.add(drive);
     }
 }
