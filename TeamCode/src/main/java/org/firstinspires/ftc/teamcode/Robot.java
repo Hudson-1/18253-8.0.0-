@@ -15,7 +15,7 @@ import java.util.List;
 public class Robot {
     MecDrive drive;
     Intake intake;
- //   Shooter shooter;
+    //   Shooter shooter;
     Lift lift;
     List<Subsystem> list;
 
@@ -24,13 +24,13 @@ public class Robot {
         drive = new MecDrive(gamepad1);
         intake = new Intake(gamepad1, gamepad2, true);
 
-      //  shooter = new Shooter(gamepad1, true);
+        //  shooter = new Shooter(gamepad1, true);
         lift = new Lift(gamepad1, true);
         list=new ArrayList<>();
 
         list.add(drive);
         list.add(intake);
-     //   list.add(shooter);
+        //   list.add(shooter);
 
         list.add(lift);
 
