@@ -23,7 +23,7 @@ public class DriveConstants {
     public static final double TICKS_PER_REV = 383.6;
     public static final double MAX_RPM = 435;
 
-    /*
+        /*
      * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
      * Set this flag to false if drive encoders are not present and an alternative localization
      * method is in use (e.g., tracking wheels).
