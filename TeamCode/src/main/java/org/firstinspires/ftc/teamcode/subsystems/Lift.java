@@ -33,7 +33,7 @@ public class Lift implements Subsystem {
     public static double TICKS_PER_REV = MOTOR_RATIO * 28.0;
     public static double GEAR_RATIO = 1;
 
-    public static double kP = 0.5;
+    public static double kP = 0.8;
     public static double kI = 0;
     public static double kD = 0;
     public static double kF = 0;
@@ -57,6 +57,13 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     public static double front = 0;
     public static double back = 0.9;
     public static double stack = 0.2;
+
+    public static double pickup5 = 0.2;
+    public static double pickup4 = 0.2;
+    public static double pickup3 = 0.2;
+    public static double pickup2 = 0.2;
+    public static double pickup1 = 0.2;
+
 
     Servo v4bL;
     Servo v4bR;
@@ -88,11 +95,14 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
 
     States state = States.REST;
 
-    public Lift(Gamepad g, boolean isTwoMotor) {
+    boolean isAuto;
+
+    public Lift(Gamepad g, boolean isTwoMotor, boolean isAuto) {
         this.g = g;
         this.isTwoMotor = isTwoMotor;
         target = 0;
         timer = new ElapsedTime();
+        this.isAuto = isAuto;
     }
 
     @Override
@@ -132,8 +142,24 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     public void update() {
 
 
+
+        if (isAuto) {
+            updateAuto();
+        } else {
+            updateTeleop();
+        }
+
+    }
+
+    private void updateAuto() {
         updatePID();
+    }
+
+
+    public void updateTeleop() {
         System.out.println("state: " + state);
+
+        updatePID();
         switch(state) {
             case REST:
                 claw.setPosition(clawOpen); // preemptively open claw
@@ -149,7 +175,6 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                         }
                     }
                 }
-
 
                 if(g.a) {
                     state = States.LOW;
@@ -199,7 +224,6 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                     if(getCurrentPosition() > 4.0) {
                         back();
                     }
-
                 }
                 grab();
                 if(g.left_bumper) {
@@ -236,30 +260,63 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                 }
                 break;
         }
-
     }
 
 
+
+
+    public void slidesHigh() {
+        setLiftPosition(LiftState.HIGH,HIGH_slides);
+    }
+
+    public void slidesIn() {
+        setLiftPosition(LiftState.REST,REST_slides);
+    }
 
     public void grab() {
         claw.setPosition(clawClose);
     }
 
+    public void release() {
+        claw.setPosition(clawOpen);
+    }
+
     public void back() {
         v4bL.setPosition(1-back);
         v4bR.setPosition(back);
-
     }
+    public void front() {
+        v4bL.setPosition(1-front);
+        v4bR.setPosition(front);
+    }
+    public void stack5() {
+        v4bL.setPosition(1-pickup5);
+        v4bR.setPosition(pickup5);
+    }
+    public void stack4() {
+        v4bL.setPosition(1-pickup4);
+        v4bR.setPosition(pickup4);
+    }
+    public void stack3() {
+        v4bL.setPosition(1-pickup3);
+        v4bR.setPosition(pickup3);
+    }
+    public void stack2() {
+        v4bL.setPosition(1-pickup2);
+        v4bR.setPosition(pickup2);
+    }
+    public void stack1() {
+        v4bL.setPosition(1-pickup1);
+        v4bR.setPosition(pickup1);
+    }
+
     public void rest() {
         v4bL.setPosition(rest);
         v4bR.setPosition(1-rest);
 
     }
 
-    public void front() {
-        v4bL.setPosition(1-front);
-        v4bR.setPosition(front);
-    }
+
     public void stack() {
         v4bL.setPosition(1-stack);
         v4bR.setPosition(stack);
