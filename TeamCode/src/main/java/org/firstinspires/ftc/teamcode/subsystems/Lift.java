@@ -152,27 +152,28 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     }
 
 
-
-    ElapsedTime clawTimer = new ElapsedTime();
-    double debounce_delay = 0.1; // time needed to release
+    boolean previousLB = false;
 
     public void updateTeleop() {
         System.out.println("state: " + state);
+        boolean currentLB = g.left_bumper;
+        boolean LBIsPressed = !previousLB && currentLB;
+        previousLB = currentLB;
 
         updatePID();
         switch(state) {
             case REST:
 
-                // this is jank, please fix
-                if (g.left_bumper) {
-                    clawTimer.reset();
-                    if (claw.getPosition() == clawOpen) {
+                if (LBIsPressed) {
+                    double currentPos = claw.getPosition();
+                    if (Double.isNaN(currentPos)) {
                         claw.setPosition(clawClose);
-                    } else {
-                        claw.setPosition(clawOpen);
                     }
-                    while (clawTimer.seconds() < debounce_delay) {
-                        System.out.println("delaying for debounce purposes");
+                    if (currentPos == clawOpen) {
+                        claw.setPosition(clawClose);
+                    }
+                    if (currentPos == clawClose) {
+                        claw.setPosition(clawOpen);
                     }
                 }
 
