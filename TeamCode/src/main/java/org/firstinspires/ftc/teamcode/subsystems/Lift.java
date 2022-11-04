@@ -152,13 +152,9 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     }
 
 
-    protected boolean previousLb = false;
-    protected boolean isLBPressed() {
-        boolean currentLB = g.left_bumper;
-        boolean result = !previousLb && currentLB;
-        previousLb = currentLB;
-        return result;
-    }
+
+    ElapsedTime clawTimer = new ElapsedTime();
+    double debounce_delay = 0.1; // time needed to release
 
     public void updateTeleop() {
         System.out.println("state: " + state);
@@ -167,12 +163,17 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         switch(state) {
             case REST:
 
-                if (isLBPressed()) {
-                  if (claw.getPosition() == clawOpen) {
-                      claw.setPosition(clawClose);
-                  } else {
-                      claw.setPosition(clawOpen);
-                  }
+                // this is jank, please fix
+                if (g.left_bumper) {
+                    clawTimer.reset();
+                    if (claw.getPosition() == clawOpen) {
+                        claw.setPosition(clawClose);
+                    } else {
+                        claw.setPosition(clawOpen);
+                    }
+                    while (clawTimer.seconds() < debounce_delay) {
+                        System.out.println("delaying for debounce purposes");
+                    }
                 }
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
