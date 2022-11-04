@@ -16,7 +16,7 @@ public class TestVisionTele extends LinearOpMode {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, false);
+        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, false,telemetry);
         Vision vision = new Vision();
         vision.init(hardwareMap);
 

@@ -19,7 +19,7 @@ public class TestAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, true);
+        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, true,telemetry);
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
 
         // The starting position of the robot on the field:

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.MecDrive;
@@ -21,13 +22,13 @@ public class Robot {
     boolean auto;
 
 
-    public Robot(Gamepad gamepad1, Gamepad gamepad2, HardwareMap map, boolean auto) {
+    public Robot(Gamepad gamepad1, Gamepad gamepad2, HardwareMap map, boolean auto, Telemetry telemetry) {
         this.auto = auto;
         drive = new MecDrive(gamepad1,auto);
         intake = new Intake(gamepad1, gamepad2, true);
 
       //  shooter = new Shooter(gamepad1, true);
-        lift = new Lift(gamepad1, true, auto);
+        lift = new Lift(gamepad1, true, auto, telemetry);
         list=new ArrayList<>();
 
         list.add(drive);

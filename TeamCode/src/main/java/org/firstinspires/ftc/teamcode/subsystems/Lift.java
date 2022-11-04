@@ -93,12 +93,15 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
 
     boolean isAuto;
 
-    public Lift(Gamepad g, boolean isTwoMotor, boolean isAuto) {
+    Telemetry telemetry;
+
+    public Lift(Gamepad g, boolean isTwoMotor, boolean isAuto, Telemetry telemetry) {
         this.g = g;
         this.isTwoMotor = isTwoMotor;
         target = 0;
         timer = new ElapsedTime();
         this.isAuto = isAuto;
+        this.telemetry = telemetry;
     }
 
     @Override
@@ -155,11 +158,12 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     boolean previousLB = false;
 
     public void updateTeleop() {
-        System.out.println("state: " + state);
         boolean currentLB = g.left_bumper;
         boolean LBIsPressed = !previousLB && currentLB;
-        System.out.println("LB press value: " + LBIsPressed);
         previousLB = currentLB;
+
+        telemetry.addData("LBIsPressed: ",LBIsPressed);
+        telemetry.update();
 
         updatePID();
         switch(state) {
