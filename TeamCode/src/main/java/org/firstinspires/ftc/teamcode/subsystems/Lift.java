@@ -169,20 +169,10 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         switch(state) {
             case REST:
 
-                if (LBIsPressed) {
-                    System.out.println("");
-                    double currentPos = claw.getPosition();
-                    if (Double.isNaN(currentPos)) {
-                        claw.setPosition(clawClose);
-                    }
-                    else if (currentPos == clawOpen) {
-                        claw.setPosition(clawClose);
-                    }
-                    else if (currentPos == clawClose) {
-                        claw.setPosition(clawOpen);
-                    } else {
-                        System.out.println("for some reason nothing happened");
-                    }
+                if (g.dpad_left) {
+                    claw.setPosition(clawClose);
+                } else if (g.dpad_right) {
+                    claw.setPosition(clawOpen);
                 }
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
@@ -215,16 +205,16 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                     timer.reset();
                 }
 
-                if(g.dpad_right) {
-                    state = States.STACK;
-                    grab();
-                    timer.reset();
-                }
-                if(g.dpad_up) {
-                    state = States.STACK_DEPOSIT;
-                    claw.setPosition(clawOpen);
-                    timer.reset();
-                }
+//                if(g.dpad_right) {
+//                    state = States.STACK;
+//                    grab();
+//                    timer.reset();
+//                }
+//                if(g.dpad_up) {
+//                    state = States.STACK_DEPOSIT;
+//                    claw.setPosition(clawOpen);
+//                    timer.reset();
+//                }
                 break;
             case LOW:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
