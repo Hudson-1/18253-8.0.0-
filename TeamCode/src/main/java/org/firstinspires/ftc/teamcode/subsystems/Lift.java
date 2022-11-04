@@ -294,6 +294,14 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         claw.setPosition(clawOpen);
     }
 
+    public void grabOpposite() {
+        release();
+    }
+
+    public void releaseOpposite() {
+        grab();
+    }
+
     public void back() {
         v4bL.setPosition(1-back);
         v4bR.setPosition(back);
