@@ -169,11 +169,11 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         switch(state) {
             case REST:
 
-                if (g.dpad_left) {
-                    claw.setPosition(clawClose);
-                } else if (g.dpad_right) {
-                    claw.setPosition(clawOpen);
-                }
+//                if (g.dpad_left) {
+//                    claw.setPosition(clawClose);
+//                } else if (g.dpad_right) {
+//                    claw.setPosition(clawOpen);
+//                }
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
