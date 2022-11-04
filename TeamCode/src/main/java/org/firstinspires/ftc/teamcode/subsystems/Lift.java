@@ -85,6 +85,8 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         CHECK
     }
 
+    LiftState liftState = LiftState.REST;
+
     ElapsedTime timer;
 
     States state = States.REST;
@@ -150,13 +152,28 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     }
 
 
+    protected boolean previousLb = false;
+    protected boolean isLBPressed() {
+        boolean currentLB = g.left_bumper;
+        boolean result = !previousLb && currentLB;
+        previousLb = currentLB;
+        return result;
+    }
+
     public void updateTeleop() {
         System.out.println("state: " + state);
 
         updatePID();
         switch(state) {
             case REST:
-                claw.setPosition(clawOpen); // preemptively open claw
+
+                if (isLBPressed()) {
+                  if (claw.getPosition() == clawOpen) {
+                      claw.setPosition(clawClose);
+                  } else {
+                      claw.setPosition(clawOpen);
+                  }
+                }
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
@@ -300,6 +317,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     }
 
     public void setLiftPosition(LiftState ls, double height) {
+        liftState = ls;
         switch(ls) {
             case REST:
                 target = REST_slides;
@@ -339,7 +357,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
             pid2 = 0;
         }
 
-        if (target_local < CHECK_slides + 1.0) {
+        if (target_local < CHECK_slides + 1.0 || liftState.equals(LiftState.STACK)) {
             pid1 = Range.clip(pid1,-DECENT_POWER_MAX,DECENT_POWER_MAX);
             pid2 = Range.clip(pid2,-DECENT_POWER_MAX,DECENT_POWER_MAX);
         }
