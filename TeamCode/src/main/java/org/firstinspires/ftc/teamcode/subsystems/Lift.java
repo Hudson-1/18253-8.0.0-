@@ -158,6 +158,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         System.out.println("state: " + state);
         boolean currentLB = g.left_bumper;
         boolean LBIsPressed = !previousLB && currentLB;
+        System.out.println("LB press value: " + LBIsPressed);
         previousLB = currentLB;
 
         updatePID();
@@ -165,15 +166,18 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
             case REST:
 
                 if (LBIsPressed) {
+                    System.out.println("");
                     double currentPos = claw.getPosition();
                     if (Double.isNaN(currentPos)) {
                         claw.setPosition(clawClose);
                     }
-                    if (currentPos == clawOpen) {
+                    else if (currentPos == clawOpen) {
                         claw.setPosition(clawClose);
                     }
-                    if (currentPos == clawClose) {
+                    else if (currentPos == clawClose) {
                         claw.setPosition(clawOpen);
+                    } else {
+                        System.out.println("for some reason nothing happened");
                     }
                 }
 
