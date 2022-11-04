@@ -51,6 +51,7 @@ public class TestAuto extends LinearOpMode {
                 .waitSeconds(1) // repeat spot
                 .build();
 
+        robot.getLift().grab();
         while (!isStarted()) {
             telemetry.addData("Telemetry Test", 0);
             telemetry.update();
