@@ -56,13 +56,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     public static double rest = .31;
     public static double front = 0;
     public static double back = 0.9;
-    public static double stack = 0.2;
-
-    public static double pickup5 = 0.2;
-    public static double pickup4 = 0.2;
-    public static double pickup3 = 0.2;
-    public static double pickup2 = 0.2;
-    public static double pickup1 = 0.2;
+    public static double stack = 0.7;
 
 
     Servo v4bL;
@@ -289,38 +283,22 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         v4bL.setPosition(1-front);
         v4bR.setPosition(front);
     }
-    public void stack5() {
-        v4bL.setPosition(1-pickup5);
-        v4bR.setPosition(pickup5);
+
+    public void slideStack(double heightIN) {
+        setLiftPosition(LiftState.STACK,heightIN);
     }
-    public void stack4() {
-        v4bL.setPosition(1-pickup4);
-        v4bR.setPosition(pickup4);
-    }
-    public void stack3() {
-        v4bL.setPosition(1-pickup3);
-        v4bR.setPosition(pickup3);
-    }
-    public void stack2() {
-        v4bL.setPosition(1-pickup2);
-        v4bR.setPosition(pickup2);
-    }
-    public void stack1() {
-        v4bL.setPosition(1-pickup1);
-        v4bR.setPosition(pickup1);
-    }
+
 
     public void rest() {
         v4bL.setPosition(rest);
         v4bR.setPosition(1-rest);
-
     }
-
 
     public void stack() {
         v4bL.setPosition(1-stack);
         v4bR.setPosition(stack);
     }
+
     public void setLiftPosition(LiftState ls, double height) {
         switch(ls) {
             case REST:
@@ -339,7 +317,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                 target = HIGH_slides;
                 break;
             case STACK:
-                target = 5.0 + height*(15.4/25.4);
+                target = height;
                 break;
         }
     }

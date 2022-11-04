@@ -26,22 +26,25 @@ public class TestAuto extends LinearOpMode {
         Pose2d startPose = new Pose2d(36, -64, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
+
+        Lift lift = robot.getLift();
+
         // The trajectory that the robot follows during the auto
         TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
                 .lineTo(new Vector2d(36, -12))
                 .turn(Math.toRadians(45))
-                .addTemporalMarker(() -> robot.getLift().slidesHigh())
+                .addTemporalMarker(lift::slidesHigh)
                 .waitSeconds(0.3)
-                .addTemporalMarker(() -> robot.getLift().front())
+                .addTemporalMarker(lift::front)
                 .waitSeconds(0.3)
-                .addTemporalMarker(() -> robot.getLift().grab())
+                .addTemporalMarker(lift::grab)
                 .waitSeconds(0.3)
-                .addTemporalMarker(() -> robot.getLift().release())
+                .addTemporalMarker(lift::release)
                 .waitSeconds(0.3)
-                .addTemporalMarker(() -> robot.getLift().stack5()) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
-                .waitSeconds(0.3)
-                .addTemporalMarker(() -> robot.getLift().slidesIn())
+                .addTemporalMarker(lift::stack)
+                .addTemporalMarker(() -> lift.slideStack(7)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
                 .waitSeconds(1)
+                .addTemporalMarker(lift::grab)
                 .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
                 .waitSeconds(1)
                 .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
