@@ -15,36 +15,15 @@ public class MeepMeepTesting {
                 .setConstraints(70, 70, Math.toRadians(300), Math.toRadians(300), 15)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(36, -64, Math.toRadians(90)))
-                                .lineTo(new Vector2d(36, -12))
-                                .turn(Math.toRadians(45))
-                                .waitSeconds(1) // repeat spot
-                                .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
-                                .waitSeconds(1)
-                                .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
-                                .waitSeconds(1) // repeat spot
-                                .turn(Math.toRadians(45))
-                                .lineTo(new Vector2d(55, -12))
-                                .waitSeconds(1)
-                                .lineTo(new Vector2d(36, -12))
-                                .turn(Math.toRadians(-45))
-                                .waitSeconds(1) // repeat spot
-                                .turn(Math.toRadians(45))
-                                .lineTo(new Vector2d(55, -12))
-                                .waitSeconds(1)
-                                .lineTo(new Vector2d(36, -12))
-                                .turn(Math.toRadians(-45))
-                                .waitSeconds(1) // repeat spot
-                                .turn(Math.toRadians(45))
-                                .lineTo(new Vector2d(55, -12))
-                                .waitSeconds(1)
-                                .lineTo(new Vector2d(36, -12))
-                                .turn(Math.toRadians(-45))
-                                .waitSeconds(1) // repeat spot
-                                .turn(Math.toRadians(45))
-                                .lineTo(new Vector2d(55, -12))
-                                .waitSeconds(1)
-                                .lineTo(new Vector2d(36, -12))
-                                .turn(Math.toRadians(-45))
+                                .splineTo(new Vector2d(36, -40), Math.toRadians(90))
+                                .splineTo(new Vector2d(30, -10), Math.toRadians(120))
+                              //  .setReversed(true)
+                              //  .splineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)), Math.toRadians(0))
+                               // .waitSeconds(1)
+                             //   .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
+                              //  .waitSeconds(1)
+                             //   .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
+
                                 .build()
                 );
 

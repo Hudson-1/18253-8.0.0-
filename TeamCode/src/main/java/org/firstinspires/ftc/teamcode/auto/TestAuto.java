@@ -23,7 +23,7 @@ public class TestAuto extends LinearOpMode {
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
 
         // The starting position of the robot on the field:
-        Pose2d startPose = new Pose2d(36, -64, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(36, -64, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
 
@@ -31,24 +31,37 @@ public class TestAuto extends LinearOpMode {
 
         // The trajectory that the robot follows during the auto
         TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
-                .lineTo(new Vector2d(36, -12))
-                .turn(Math.toRadians(45))
-                .addTemporalMarker(lift::slidesHigh)
+                .lineTo(new Vector2d(36, -14))
+                .strafeTo(new Vector2d(11, -14))
+                .strafeTo(new Vector2d (11, -6))
+              //  .waitSeconds(1) // repeat spot
+           //     .lineTo(new Vector2d(36, -12))
+            //    .addTemporalMarker(lift::slidesHigh)
                 .waitSeconds(0.3)
-                .addTemporalMarker(lift::front)
+           //     .addTemporalMarker(lift::front)
                 .waitSeconds(0.3)
-                .addTemporalMarker(lift::grab)
+            //    .addTemporalMarker(lift::grab)
                 .waitSeconds(0.3)
-                .addTemporalMarker(lift::release)
+            //    .addTemporalMarker(lift::release)
                 .waitSeconds(0.3)
-                .addTemporalMarker(lift::stack)
-                .addTemporalMarker(() -> lift.slideStack(7)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
+                .strafeTo(new Vector2d(11, -14))
+                .lineTo(new Vector2d(36, -14))
+                .turn(Math.toRadians(-90))
+                .lineToLinearHeading(new Pose2d(50, -14, Math.toRadians(180)))
                 .waitSeconds(1)
-                .addTemporalMarker(lift::grab)
-                .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
+                .lineTo(new Vector2d(36, -14))
+                .turn(Math.toRadians(90))
+                .strafeTo(new Vector2d(11, -14))
+                .strafeTo(new Vector2d (11, -6))
+
+             //   .addTemporalMarker(lift::stack)
+             //   .addTemporalMarker(() -> lift.slideStack(7)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
                 .waitSeconds(1)
-                .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
-                .waitSeconds(1) // repeat spot
+             //   .addTemporalMarker(lift::grab)
+            //    .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
+           //     .waitSeconds(1)
+             //   .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
+             //   .waitSeconds(1) // repeat spot
                 .build();
 
         robot.getLift().grab();
