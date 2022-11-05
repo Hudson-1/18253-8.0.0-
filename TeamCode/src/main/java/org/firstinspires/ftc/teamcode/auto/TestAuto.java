@@ -31,38 +31,53 @@ public class TestAuto extends LinearOpMode {
 
         // The trajectory that the robot follows during the auto
         TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
+
+        // ----DRIVE FORWARD, LINE UP WITH POLE, MOVE TO POLE----
                 .lineTo(new Vector2d(36, -14))
                 .strafeTo(new Vector2d(11, -14))
-                .strafeTo(new Vector2d (11, -6))
-              //  .waitSeconds(1) // repeat spot
-           //     .lineTo(new Vector2d(36, -12))
-            //    .addTemporalMarker(lift::slidesHigh)
+                .strafeTo(new Vector2d(11, -6))
+
+        //  ----DELIVER FIRST CONE----
+                //  .waitSeconds(1) // repeat spot
+                //     .lineTo(new Vector2d(36, -12))
+                //    .addTemporalMarker(lift::slidesHigh)
                 .waitSeconds(0.3)
-           //     .addTemporalMarker(lift::front)
+                //     .addTemporalMarker(lift::front)
                 .waitSeconds(0.3)
-            //    .addTemporalMarker(lift::grab)
+                //    .addTemporalMarker(lift::grab)
                 .waitSeconds(0.3)
-            //    .addTemporalMarker(lift::release)
+                //    .addTemporalMarker(lift::release)
                 .waitSeconds(0.3)
+
+        // ----BACK UP, MOVE, TURN, MOVE TO 5 STACK----
+                // Could try these with splines
                 .strafeTo(new Vector2d(11, -14))
                 .lineTo(new Vector2d(36, -14))
                 .turn(Math.toRadians(-90))
                 .lineToLinearHeading(new Pose2d(50, -14, Math.toRadians(180)))
+
+        // ----PICK UP CONE FROM STACK----
                 .waitSeconds(1)
+
+        // ----MOVE AWAY, TURN, LINE UP WITH POLE, MOVE TO POLE-----
                 .lineTo(new Vector2d(36, -14))
                 .turn(Math.toRadians(90))
                 .strafeTo(new Vector2d(11, -14))
-                .strafeTo(new Vector2d (11, -6))
+                .strafeTo(new Vector2d(11, -6))
 
-             //   .addTemporalMarker(lift::stack)
-             //   .addTemporalMarker(() -> lift.slideStack(7)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
+        // ----DELIVER CONE----
+
+
+                //   .addTemporalMarker(lift::stack)
+                //   .addTemporalMarker(() -> lift.slideStack(7)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
                 .waitSeconds(1)
-             //   .addTemporalMarker(lift::grab)
-            //    .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
-           //     .waitSeconds(1)
-             //   .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
-             //   .waitSeconds(1) // repeat spot
+                //   .addTemporalMarker(lift::grab)
+                //    .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
+                //     .waitSeconds(1)
+                //   .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
+                //   .waitSeconds(1) // repeat spot
                 .build();
+
 
         robot.getLift().grab();
         while (!isStarted()) {
