@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.State;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.BensMagic.AsymmetricProfile.AsymmetricMotionProfile;
 import org.firstinspires.ftc.teamcode.BensMagic.AsymmetricProfile.MotionConstraint;
@@ -320,6 +321,14 @@ public class Lift implements Subsystem {
             case REST:
                 target = REST_slides;
                 break;
+            case STACK_1:
+            case STACK_2:
+            case STACK_3:
+            case STACK_4:
+            case STACK_5:
+            case STACK_SAFE:
+                target = stackHeightFromStatesForSlides(oppositeStateConversionForStack(ls));
+                break;
             case CHECK:
                 target = CHECK_slides; // this is your minimum position where your v4b can go in (change as needed)
                 break;
@@ -447,6 +456,22 @@ public class Lift implements Subsystem {
                 return LiftState.STACK_SAFE;
             default:
                 return LiftState.STACK_5;
+        }
+    }
+    public States oppositeStateConversionForStack(LiftState states) {
+        switch (state) {
+            case STACK_1:
+                return States.STACK_1;
+            case STACK_2:
+                return States.STACK_2;
+            case STACK_3:
+                return States.STACK_3;
+            case STACK_4:
+                return States.STACK_4;
+            case STACK_SAFE:
+                return States.STACK_SAFE;
+            default:
+                return States.STACK_5;
         }
     }
 
