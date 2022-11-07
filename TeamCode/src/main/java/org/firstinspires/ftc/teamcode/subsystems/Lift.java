@@ -75,6 +75,9 @@ public class Lift implements Subsystem {
         LOW,
         MID,
         HIGH,
+        LOW_ALTERNATIVE,
+        MID_ALTERNATIVE,
+        HIGH_ALTERNATIVE,
         STACK,
         STACK_1,
         STACK_2,
@@ -236,6 +239,31 @@ public class Lift implements Subsystem {
                     state = States.REST;
                 }
                 break;
+            case LOW_ALTERNATIVE:
+                setLiftPosition(LiftState.LOW, 5);
+
+                if(g.left_bumper) {
+                    timer.reset();
+                    state = States.REST;
+                }
+                break;
+            case MID_ALTERNATIVE:
+                setLiftPosition(LiftState.MID, 5);
+
+                if(g.left_bumper) {
+                    timer.reset();
+                    state = States.REST;
+                }
+                break;
+            case HIGH_ALTERNATIVE:
+                setLiftPosition(LiftState.HIGH, 5);
+                grab();
+                if(g.left_bumper) {
+                    timer.reset();
+                    state = States.REST;
+                }
+                break;
+
             case STACK_1:
             case STACK_2:
             case STACK_3:
@@ -261,19 +289,19 @@ public class Lift implements Subsystem {
             case STACK_SAFE:
                 stack();
                 if(g.a) {
-                    state = States.LOW;
+                    state = States.LOW_ALTERNATIVE;
                     grab();
                     timer.reset();
                 }
 
                 if(g.b) {
-                    state = States.MID;
+                    state = States.MID_ALTERNATIVE;
                     grab();
                     timer.reset();
                 }
 
                 if(g.right_bumper) {
-                    state = States.HIGH;
+                    state = States.HIGH_ALTERNATIVE;
                     grab();
                     timer.reset();
                 }
