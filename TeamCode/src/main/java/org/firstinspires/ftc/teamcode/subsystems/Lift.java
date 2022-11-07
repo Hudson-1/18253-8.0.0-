@@ -166,6 +166,7 @@ public class Lift implements Subsystem {
         System.out.println("state: " + state);
         switch(state) {
             case REST:
+                claw.setPosition(clawOpen); // preemptively open claw
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
@@ -179,11 +180,20 @@ public class Lift implements Subsystem {
                     }
                 }
 
-                if (g.square) {
-                    claw.setPosition(clawClose);
-                }
-                if (g.triangle) {
-                    claw.setPosition(clawOpen);
+
+//                if (g.square) {
+//                    claw.setPosition(clawClose);
+//                }
+//                if (g.triangle) {
+//                    claw.setPosition(clawOpen);
+//                }
+
+                if (leftBumperPress.press()) {
+                    if (claw.getPosition() == clawClose) {
+                        claw.setPosition(clawOpen);
+                    } else {
+                        claw.setPosition(clawClose);
+                    }
                 }
 
                 if(g.a) {
