@@ -172,7 +172,6 @@ public class Lift implements Subsystem {
                     }
                 }
 
-
                 if(g.a) {
                     state = States.LOW;
                     grab();
@@ -191,11 +190,6 @@ public class Lift implements Subsystem {
                     timer.reset();
                 }
 
-                if(g.dpad_right) {
-                    state = States.STACK;
-                    grab();
-                    timer.reset();
-                }
                 if(g.dpad_up || g.dpad_down) {
                     state = States.STACK_5;
                 }
@@ -240,12 +234,6 @@ public class Lift implements Subsystem {
                     state = States.REST;
                 }
                 break;
-            case STACK:
-                setLiftPosition(LiftState.STACK, 0);
-                if(getCurrentPosition() > 4){
-                    stack();
-                }
-                break;
             case STACK_1:
             case STACK_2:
             case STACK_3:
@@ -263,11 +251,11 @@ public class Lift implements Subsystem {
                 if (g.dpad_right) {
                     state = States.STACK_SAFE;
                 }
-
+                stack();
                 setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
                 break;
             case STACK_SAFE:
-
+                stack();
                 if(g.a) {
                     state = States.LOW;
                     grab();
