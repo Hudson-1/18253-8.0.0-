@@ -150,12 +150,16 @@ public class Lift implements Subsystem {
 
     ButtonPress upDpadPress = new ButtonPress();
     ButtonPress downDpadPress = new ButtonPress();
+    ButtonPress leftBumperPress = new ButtonPress();
 
     @Override
     public void update() {
 
         upDpadPress.button(g.dpad_up);
         downDpadPress.button(g.dpad_down);
+        leftBumperPress.button(g.dpad_down);
+
+
 
 
         updatePID();
@@ -173,6 +177,14 @@ public class Lift implements Subsystem {
                         } else {
                             setLiftPosition(LiftState.REST, 0);
                         }
+                    }
+                }
+
+                if (leftBumperPress.press()) {
+                    if (claw.getPosition() == clawClose) {
+                        claw.setPosition(clawOpen);
+                    } else {
+                        claw.setPosition(clawClose);
                     }
                 }
 
@@ -240,7 +252,10 @@ public class Lift implements Subsystem {
                 }
                 break;
             case LOW_ALTERNATIVE:
+                back();
+
                 setLiftPosition(LiftState.LOW, 5);
+                grab();
 
                 if(g.left_bumper) {
                     timer.reset();
@@ -248,7 +263,10 @@ public class Lift implements Subsystem {
                 }
                 break;
             case MID_ALTERNATIVE:
+                back();
+
                 setLiftPosition(LiftState.MID, 5);
+                grab();
 
                 if(g.left_bumper) {
                     timer.reset();
@@ -256,6 +274,8 @@ public class Lift implements Subsystem {
                 }
                 break;
             case HIGH_ALTERNATIVE:
+                back();
+
                 setLiftPosition(LiftState.HIGH, 5);
                 grab();
                 if(g.left_bumper) {
