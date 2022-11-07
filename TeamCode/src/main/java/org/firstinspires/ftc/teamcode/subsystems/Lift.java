@@ -193,6 +193,7 @@ public class Lift implements Subsystem {
 
                 if(g.dpad_up || g.dpad_down) {
                     state = States.STACK_5;
+                    claw.setPosition(clawClose); // backwards
                 }
                 break;
             case LOW:
