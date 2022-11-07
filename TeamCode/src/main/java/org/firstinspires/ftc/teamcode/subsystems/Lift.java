@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.widget.Button;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,6 +15,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.BensMagic.AsymmetricProfile.AsymmetricMotionProfile;
 import org.firstinspires.ftc.teamcode.BensMagic.AsymmetricProfile.MotionConstraint;
+import org.firstinspires.ftc.teamcode.util.ButtonPress;
 
 @Config
 public class Lift implements Subsystem {
@@ -56,7 +59,7 @@ public class Lift implements Subsystem {
     public static double rest = .31;
     public static double front = 0;
     public static double back = 0.9;
-    public static double stack = 0.2;
+    public static double stack = back - 0.2;
 
     Servo v4bL;
     Servo v4bR;
@@ -72,7 +75,14 @@ public class Lift implements Subsystem {
         MID,
         HIGH,
         STACK,
-        STACK_DEPOSIT
+        STACK_1,
+        STACK_2,
+        STACK_3,
+        STACK_4,
+        STACK_5,
+        STACK_SAFE,
+        STACK_DEPOSIT,
+
     }
 
     public enum LiftState {
@@ -81,6 +91,12 @@ public class Lift implements Subsystem {
         MID,
         HIGH,
         STACK,
+        STACK_1,
+        STACK_2,
+        STACK_3,
+        STACK_4,
+        STACK_5,
+        STACK_SAFE,
         CHECK
     }
 
@@ -128,8 +144,14 @@ public class Lift implements Subsystem {
         m2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    ButtonPress upDpadPress = new ButtonPress();
+    ButtonPress downDpadPress = new ButtonPress();
+
     @Override
     public void update() {
+
+        upDpadPress.button(g.dpad_up);
+        downDpadPress.button(g.dpad_down);
 
 
         updatePID();
@@ -174,10 +196,8 @@ public class Lift implements Subsystem {
                     grab();
                     timer.reset();
                 }
-                if(g.dpad_up) {
-                    state = States.STACK_DEPOSIT;
-                    claw.setPosition(clawOpen);
-                    timer.reset();
+                if(g.dpad_up || g.dpad_down) {
+                    state = States.STACK_5;
                 }
                 break;
             case LOW:
@@ -224,9 +244,49 @@ public class Lift implements Subsystem {
                 setLiftPosition(LiftState.STACK, 0);
                 if(getCurrentPosition() > 4){
                     stack();
-
                 }
                 break;
+            case STACK_1:
+            case STACK_2:
+            case STACK_3:
+            case STACK_4:
+            case STACK_5:
+                if (upDpadPress.press()) {
+                    state = nextInStack(state);
+                }
+                if (downDpadPress.press()) {
+                    state = previousInStack(state);
+                }
+                if (g.dpad_left) {
+                    claw.setPosition(clawClose);
+                }
+                if (g.dpad_right) {
+                    state = States.STACK_SAFE;
+                }
+
+                setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
+                break;
+            case STACK_SAFE:
+
+                if(g.a) {
+                    state = States.LOW;
+                    grab();
+                    timer.reset();
+                }
+
+                if(g.b) {
+                    state = States.MID;
+                    grab();
+                    timer.reset();
+                }
+
+                if(g.right_bumper) {
+                    state = States.HIGH;
+                    grab();
+                    timer.reset();
+                }
+                setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
+
             case STACK_DEPOSIT:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
                     setLiftPosition(LiftState.HIGH, 28);
@@ -264,6 +324,9 @@ public class Lift implements Subsystem {
         v4bL.setPosition(1-stack);
         v4bR.setPosition(stack);
     }
+
+
+
     public void setLiftPosition(LiftState ls, double height) {
         switch(ls) {
             case REST:
@@ -333,7 +396,74 @@ public class Lift implements Subsystem {
         return rpm * GEAR_RATIO * 2 * Math.PI * SPOOL_SIZE_IN / 60.0;
     }
 
-    @Override
+    public States nextInStack(States stackState) {
+        switch (stackState) {
+            case STACK_1:
+                return States.STACK_2;
+            case STACK_2:
+                return States.STACK_3;
+            case STACK_3:
+                return States.STACK_4;
+            case STACK_4:
+            case STACK_5:
+                return States.STACK_5;
+            default:
+                return States.STACK_1;
+        }
+    }
+    public States previousInStack(States stackState) {
+        switch (stackState) {
+            case STACK_3:
+                return States.STACK_2;
+            case STACK_4:
+                return States.STACK_3;
+            case STACK_5:
+                return States.STACK_4;
+            case STACK_1:
+            case STACK_2:
+            default:
+                return States.STACK_1;
+        }
+    }
+
+    public double stackHeightFromStatesForSlides(States stackStates) {
+        switch (stackStates) {
+            case STACK_1:
+                return 1.5;
+            case STACK_2:
+                return 2.5;
+            case STACK_3:
+                return 4;
+            case STACK_4:
+                return 5.5;
+            case STACK_5:
+                return 7;
+            case STACK_SAFE:
+                return 12;
+        }
+        return 0;
+    }
+
+
+    public LiftState stateConversionForStack(States state) {
+        switch (state) {
+            case STACK_1:
+                return LiftState.STACK_1;
+            case STACK_2:
+                return LiftState.STACK_2;
+            case STACK_3:
+                return LiftState.STACK_3;
+            case STACK_4:
+                return LiftState.STACK_4;
+            case STACK_SAFE:
+                return LiftState.STACK_SAFE;
+            default:
+                return LiftState.STACK_5;
+        }
+    }
+
+
+        @Override
     public Telemetry telemetry() {
         return null;
     }
