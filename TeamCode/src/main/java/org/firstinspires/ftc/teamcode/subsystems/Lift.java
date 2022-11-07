@@ -33,7 +33,7 @@ public class Lift implements Subsystem {
     public static double TICKS_PER_REV = MOTOR_RATIO * 28.0;
     public static double GEAR_RATIO = 1;
 
-    public static double kP = 0.8;
+    public static double kP = 0.5;
     public static double kI = 0;
     public static double kD = 0;
     public static double kF = 0;
@@ -45,7 +45,7 @@ public class Lift implements Subsystem {
     public static double WAIT_FOR_CLAW_MILLISECONDS = 500;
     // when putting back in, we wait this amount of time after we start moving the v4b
     public static double WAIT_FOR_V4B_IN = 600;
-public static double WAIT_FOR_CLAW_OPEN = 700;
+    public static double WAIT_FOR_CLAW_OPEN = 700;
     // change claw
 
     public static double clawOpen = 0.66;
@@ -56,8 +56,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     public static double rest = .31;
     public static double front = 0;
     public static double back = 0.9;
-    public static double stack = 0.7;
-
+    public static double stack = 0.2;
 
     Servo v4bL;
     Servo v4bR;
@@ -85,23 +84,15 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         CHECK
     }
 
-    LiftState liftState = LiftState.REST;
-
     ElapsedTime timer;
 
     States state = States.REST;
 
-    boolean isAuto;
-
-    Telemetry telemetry;
-
-    public Lift(Gamepad g, boolean isTwoMotor, boolean isAuto, Telemetry telemetry) {
+    public Lift(Gamepad g, boolean isTwoMotor) {
         this.g = g;
         this.isTwoMotor = isTwoMotor;
         target = 0;
         timer = new ElapsedTime();
-        this.isAuto = isAuto;
-        this.telemetry = telemetry;
     }
 
     @Override
@@ -114,7 +105,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
         claw = map.get(Servo.class, "claw");
 
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
-      //  m2.setDirection(DcMotorSimple.Direction.REVERSE);
+        //  m2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         m1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         m2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -141,39 +132,11 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
     public void update() {
 
 
-
-        if (isAuto) {
-            updateAuto();
-        } else {
-            updateTeleop();
-        }
-
-    }
-
-    private void updateAuto() {
         updatePID();
-    }
-
-
-    boolean previousLB = false;
-
-    public void updateTeleop() {
-        boolean currentLB = g.left_bumper;
-        boolean LBIsPressed = !previousLB && currentLB;
-        previousLB = currentLB;
-
-        telemetry.addData("LBIsPressed: ",LBIsPressed);
-        telemetry.update();
-
-        updatePID();
+        System.out.println("state: " + state);
         switch(state) {
             case REST:
-
-//                if (g.dpad_left) {
-//                    claw.setPosition(clawClose);
-//                } else if (g.dpad_right) {
-//                    claw.setPosition(clawOpen);
-//                }
+                claw.setPosition(clawOpen); // preemptively open claw
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
@@ -186,6 +149,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                         }
                     }
                 }
+
 
                 if(g.a) {
                     state = States.LOW;
@@ -205,16 +169,16 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                     timer.reset();
                 }
 
-//                if(g.dpad_right) {
-//                    state = States.STACK;
-//                    grab();
-//                    timer.reset();
-//                }
-//                if(g.dpad_up) {
-//                    state = States.STACK_DEPOSIT;
-//                    claw.setPosition(clawOpen);
-//                    timer.reset();
-//                }
+                if(g.dpad_right) {
+                    state = States.STACK;
+                    grab();
+                    timer.reset();
+                }
+                if(g.dpad_up) {
+                    state = States.STACK_DEPOSIT;
+                    claw.setPosition(clawOpen);
+                    timer.reset();
+                }
                 break;
             case LOW:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
@@ -235,6 +199,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                     if(getCurrentPosition() > 4.0) {
                         back();
                     }
+
                 }
                 grab();
                 if(g.left_bumper) {
@@ -271,61 +236,35 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                 }
                 break;
         }
+
     }
 
 
-
-
-    public void slidesHigh() {
-        setLiftPosition(LiftState.HIGH,HIGH_slides);
-    }
-
-    public void slidesIn() {
-        setLiftPosition(LiftState.REST,REST_slides);
-    }
 
     public void grab() {
         claw.setPosition(clawClose);
     }
 
-    public void release() {
-        claw.setPosition(clawOpen);
-    }
-
-    public void grabOpposite() {
-        release();
-    }
-
-    public void releaseOpposite() {
-        grab();
-    }
-
     public void back() {
         v4bL.setPosition(1-back);
         v4bR.setPosition(back);
+
     }
+    public void rest() {
+        v4bL.setPosition(rest);
+        v4bR.setPosition(1-rest);
+
+    }
+
     public void front() {
         v4bL.setPosition(1-front);
         v4bR.setPosition(front);
     }
-
-    public void slideStack(double heightIN) {
-        setLiftPosition(LiftState.STACK,heightIN);
-    }
-
-
-    public void rest() {
-        v4bL.setPosition(rest);
-        v4bR.setPosition(1-rest);
-    }
-
     public void stack() {
         v4bL.setPosition(1-stack);
         v4bR.setPosition(stack);
     }
-
     public void setLiftPosition(LiftState ls, double height) {
-        liftState = ls;
         switch(ls) {
             case REST:
                 target = REST_slides;
@@ -343,7 +282,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
                 target = HIGH_slides;
                 break;
             case STACK:
-                target = height;
+                target = 5.0 + height*(15.4/25.4);
                 break;
         }
     }
@@ -365,7 +304,7 @@ public static double WAIT_FOR_CLAW_OPEN = 700;
             pid2 = 0;
         }
 
-        if (target_local < CHECK_slides + 1.0 || liftState.equals(LiftState.STACK)) {
+        if (target_local < CHECK_slides + 1.0) {
             pid1 = Range.clip(pid1,-DECENT_POWER_MAX,DECENT_POWER_MAX);
             pid2 = Range.clip(pid2,-DECENT_POWER_MAX,DECENT_POWER_MAX);
         }

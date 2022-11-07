@@ -19,7 +19,7 @@ public class TestAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, true,telemetry);
+        Robot robot = new Robot(gamepad1, gamepad2, hardwareMap,true);
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
 
         // The starting position of the robot on the field:
@@ -27,7 +27,7 @@ public class TestAuto extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
 
-        Lift lift = robot.getLift();
+     //   Lift lift = robot.getLift();
 
         // The trajectory that the robot follows during the auto
         TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
@@ -36,19 +36,15 @@ public class TestAuto extends LinearOpMode {
                 .lineTo(new Vector2d(36, -14))
                 .strafeTo(new Vector2d(11, -14))
                 .strafeTo(new Vector2d(11, -6))
-
-        //  ----DELIVER FIRST CONE----
+            //    .addTemporalMarker(lift::slidesHigh)
+                .waitSeconds(.2)
+           //     .addTemporalMarker(lift::back)
+                .waitSeconds(.4)
+            //    .addTemporalMarker(lift::release)
+                .waitSeconds(.5)
+        //  ----DELIVER FIRST CONE"----
                 //  .waitSeconds(1) // repeat spot
-                //     .lineTo(new Vector2d(36, -12))
-                //    .addTemporalMarker(lift::slidesHigh)
-                .waitSeconds(0.3)
-                //     .addTemporalMarker(lift::front)
-                .waitSeconds(0.3)
-                //    .addTemporalMarker(lift::grab)
-                .waitSeconds(0.3)
-                //    .addTemporalMarker(lift::release)
-                .waitSeconds(0.3)
-
+                     .lineTo(new Vector2d(36, -12))
         // ----BACK UP, MOVE, TURN, MOVE TO 5 STACK----
                 // Could try these with splines
                 .strafeTo(new Vector2d(11, -14))
@@ -79,7 +75,7 @@ public class TestAuto extends LinearOpMode {
                 .build();
 
 
-        robot.getLift().grab();
+      //  robot.getLift().grab();
         while (!isStarted()) {
             telemetry.addData("Telemetry Test", 0);
             telemetry.update();
