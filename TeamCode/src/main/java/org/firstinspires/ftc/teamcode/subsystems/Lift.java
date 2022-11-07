@@ -277,7 +277,7 @@ public class Lift implements Subsystem {
                     timer.reset();
                 }
                 setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
-
+                break;
             case STACK_DEPOSIT:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
                     setLiftPosition(LiftState.HIGH, 28);
