@@ -252,7 +252,9 @@ public class Lift implements Subsystem {
                 if (g.dpad_right) {
                     state = States.STACK_SAFE;
                 }
-                stack();
+                if (getCurrentPosition() > 4) {
+                    stack();
+                }
                 setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
                 break;
             case STACK_SAFE:
