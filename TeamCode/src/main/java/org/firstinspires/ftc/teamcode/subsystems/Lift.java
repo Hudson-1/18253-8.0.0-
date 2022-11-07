@@ -247,7 +247,7 @@ public class Lift implements Subsystem {
                     state = previousInStack(state);
                 }
                 if (g.dpad_left) {
-                    claw.setPosition(clawClose);
+                    claw.setPosition(clawOpen);
                 }
                 if (g.dpad_right) {
                     state = States.STACK_SAFE;
