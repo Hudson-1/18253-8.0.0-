@@ -461,7 +461,7 @@ public class Lift implements Subsystem {
         }
     }
     public States oppositeStateConversionForStack(LiftState states) {
-        switch (state) {
+        switch (states) {
             case STACK_1:
                 return States.STACK_1;
             case STACK_2:
