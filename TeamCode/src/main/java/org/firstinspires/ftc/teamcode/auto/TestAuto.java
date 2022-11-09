@@ -21,6 +21,7 @@ public class TestAuto extends LinearOpMode {
 
         Robot robot = new Robot(gamepad1, gamepad2, hardwareMap,true);
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
+        Lift lift = robot.lift;
 
         // The starting position of the robot on the field:
         Pose2d startPose = new Pose2d(36, -64, Math.toRadians(270));
@@ -36,14 +37,14 @@ public class TestAuto extends LinearOpMode {
                 .lineTo(new Vector2d(36, -14))
                 .strafeTo(new Vector2d(11, -14))
                 .strafeTo(new Vector2d(11, -6))
-            //    .addTemporalMarker(lift::slidesHigh)
+                .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.HIGH,0))
                 .waitSeconds(.2)
-           //     .addTemporalMarker(lift::back)
+                .addTemporalMarker(lift::back)
                 .waitSeconds(.4)
-            //    .addTemporalMarker(lift::release)
+                .addTemporalMarker(lift::release)
                 .waitSeconds(.5)
         //  ----DELIVER FIRST CONE"----
-                //  .waitSeconds(1) // repeat spot
+                  .waitSeconds(1) // repeat spot
                      .lineTo(new Vector2d(36, -12))
         // ----BACK UP, MOVE, TURN, MOVE TO 5 STACK----
                 // Could try these with splines
@@ -64,14 +65,14 @@ public class TestAuto extends LinearOpMode {
         // ----DELIVER CONE----
 
 
-                //   .addTemporalMarker(lift::stack)
-                //   .addTemporalMarker(() -> lift.slideStack(7)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
+                   .addTemporalMarker(lift::stack)
+                   .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.STACK_5,0)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
                 .waitSeconds(1)
-                //   .addTemporalMarker(lift::grab)
-                //    .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
-                //     .waitSeconds(1)
-                //   .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
-                //   .waitSeconds(1) // repeat spot
+                   .addTemporalMarker(lift::grab)
+                    .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
+                     .waitSeconds(1)
+                   .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
+                   .waitSeconds(1) // repeat spot
                 .build();
 
 

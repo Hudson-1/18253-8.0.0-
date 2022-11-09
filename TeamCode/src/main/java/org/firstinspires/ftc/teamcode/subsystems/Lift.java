@@ -353,6 +353,11 @@ public class Lift implements Subsystem {
         claw.setPosition(clawClose);
     }
 
+
+    public void release() {
+        claw.setPosition(clawOpen);
+    }
+
     public void back() {
         v4bL.setPosition(1-back);
         v4bR.setPosition(back);
@@ -373,6 +378,10 @@ public class Lift implements Subsystem {
         v4bR.setPosition(stack);
     }
 
+
+    public void slidesHigh() {
+        setLiftPosition(LiftState.HIGH,0);
+    }
 
 
     public void setLiftPosition(LiftState ls, double height) {

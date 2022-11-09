@@ -15,7 +15,7 @@ public class Robot {
     MecDrive drive;
     Intake intake;
     //   Shooter shooter;
-    Lift lift;
+    public Lift lift;
     List<Subsystem> list;
     // If the boolean is true, run auto version of robot, if false run the tele version of robot
     boolean auto;
