@@ -108,11 +108,14 @@ public class Lift implements Subsystem {
 
     States state = States.REST;
 
-    public Lift(Gamepad g, boolean isTwoMotor) {
+    public boolean isAuto;
+
+    public Lift(Gamepad g, boolean isTwoMotor, boolean isAuto) {
         this.g = g;
         this.isTwoMotor = isTwoMotor;
         target = 0;
         timer = new ElapsedTime();
+        this.isAuto = isAuto;
     }
 
     @Override
@@ -155,12 +158,24 @@ public class Lift implements Subsystem {
     @Override
     public void update() {
 
+        if (isAuto) {
+            autoUpdate();
+        } else {
+            teleopUpdate();
+        }
+
+
+    }
+
+
+    public void autoUpdate() {
+        updatePID();
+    }
+
+    public void teleopUpdate() {
         upDpadPress.button(g.dpad_up);
         downDpadPress.button(g.dpad_down);
         leftBumperPress.button(g.dpad_down);
-
-
-
 
         updatePID();
         System.out.println("state: " + state);
@@ -346,7 +361,6 @@ public class Lift implements Subsystem {
         }
 
     }
-
 
 
     public void grab() {
