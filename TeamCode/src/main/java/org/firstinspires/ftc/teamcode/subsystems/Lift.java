@@ -186,7 +186,7 @@ public class Lift implements Subsystem {
         System.out.println("state: " + state);
         switch(state) {
             case REST:
-                claw.setPosition(clawOpen); // preemptively open claw
+                // claw.setPosition(clawOpen); // preemptively open claw
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
@@ -249,6 +249,7 @@ public class Lift implements Subsystem {
                 grab();
                 if(g.left_bumper) {
                     timer.reset();
+                    claw.setPosition(clawOpen);
                     state = States.REST;
                 }
                 break;
@@ -263,6 +264,7 @@ public class Lift implements Subsystem {
                 grab();
                 if(g.left_bumper) {
                     timer.reset();
+                    claw.setPosition(clawOpen);
                     state = States.REST;
                 }
                 break;
@@ -276,6 +278,7 @@ public class Lift implements Subsystem {
                 grab();
                 if(g.left_bumper) {
                     timer.reset();
+                    claw.setPosition(clawOpen);
                     state = States.REST;
                 }
                 break;
@@ -287,6 +290,8 @@ public class Lift implements Subsystem {
 
                 if(g.left_bumper) {
                     timer.reset();
+                    grab(); // opposite day
+
                     state = States.REST;
                 }
                 break;
@@ -298,6 +303,7 @@ public class Lift implements Subsystem {
 
                 if(g.left_bumper) {
                     timer.reset();
+                    grab(); // opposite day
                     state = States.REST;
                 }
                 break;
@@ -308,6 +314,7 @@ public class Lift implements Subsystem {
                 release(); // reversed
                 if(g.left_bumper) {
                     timer.reset();
+                    grab(); // opposite day
                     state = States.REST;
                 }
                 break;
