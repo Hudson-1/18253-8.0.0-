@@ -61,6 +61,7 @@ public class Lift implements Subsystem {
     public static double front = 0;
     public static double back = 0.9;
     public static double stack = back - 0.2;
+    boolean doResetClaw = true;
 
     Servo v4bL;
     Servo v4bR;
@@ -188,13 +189,16 @@ public class Lift implements Subsystem {
 
         updatePID();
         System.out.println("state: " + state);
+
+
         switch(state) {
             case REST:
                 // claw.setPosition(clawOpen); // preemptively open claw
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
-                    resetServos(false);
+                    resetServos(doResetClaw);
+                    doResetClaw = false;
                     if (timer.milliseconds() > WAIT_FOR_V4B_IN + WAIT_FOR_CLAW_MILLISECONDS) {
                         if(timer.milliseconds() < 600 + WAIT_FOR_CLAW_MILLISECONDS) {
                             setLiftPosition(LiftState.CHECK, 0);
@@ -224,23 +228,29 @@ public class Lift implements Subsystem {
                     state = States.LOW;
                     grab();
                     timer.reset();
+                    doResetClaw = true;
                 }
 
                 if(g.b) {
                     state = States.MID;
                     grab();
                     timer.reset();
+                    doResetClaw = true;
+
                 }
 
                 if(g.right_bumper) {
                     state = States.HIGH;
                     grab();
                     timer.reset();
+                    doResetClaw = true;
+
                 }
 
                 if(g.dpad_up || g.dpad_down) {
                     state = States.STACK_5;
                     claw.setPosition(clawClose); // backwards
+                    doResetClaw = true;
                 }
                 break;
             case LOW:
