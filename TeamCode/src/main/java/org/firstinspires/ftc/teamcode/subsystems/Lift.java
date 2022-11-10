@@ -291,7 +291,6 @@ public class Lift implements Subsystem {
                 if(g.left_bumper) {
                     timer.reset();
                     grab(); // opposite day
-
                     state = States.REST;
                 }
                 break;
