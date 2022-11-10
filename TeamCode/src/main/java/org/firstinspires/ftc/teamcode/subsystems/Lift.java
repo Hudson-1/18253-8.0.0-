@@ -137,13 +137,18 @@ public class Lift implements Subsystem {
         m2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         resetServos();
     }
 
     public void resetServos() {
         v4bL.setPosition(1-rest);
         v4bR.setPosition(rest);
-        claw.setPosition(clawOpen);
+        if (isAuto) {
+            claw.setPosition(clawClose);
+        } else {
+            claw.setPosition(clawOpen);
+        }
     }
 
     public void reset() {
@@ -278,7 +283,7 @@ public class Lift implements Subsystem {
                 back();
 
                 setLiftPosition(LiftState.LOW, 5);
-                grab();
+                release();
 
                 if(g.left_bumper) {
                     timer.reset();
@@ -289,7 +294,7 @@ public class Lift implements Subsystem {
                 back();
 
                 setLiftPosition(LiftState.MID, 5);
-                grab();
+                release();
 
                 if(g.left_bumper) {
                     timer.reset();
@@ -300,7 +305,7 @@ public class Lift implements Subsystem {
                 back();
 
                 setLiftPosition(LiftState.HIGH, 5);
-                grab();
+                release(); // reversed
                 if(g.left_bumper) {
                     timer.reset();
                     state = States.REST;
