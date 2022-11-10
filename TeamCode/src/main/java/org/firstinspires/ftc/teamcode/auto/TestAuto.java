@@ -6,6 +6,9 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -26,6 +29,34 @@ public class TestAuto extends LinearOpMode {
         // The starting position of the robot on the field:
         Pose2d startPose = new Pose2d(36, -64, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
+        Vision vision = new Vision();
+        vision.init(hardwareMap);
+
+        Vision.Detection_States target = Vision.Detection_States.ONE;
+
+        while (!isStopRequested() && !opModeIsActive()) {
+            target = vision.returnVisionState();
+            telemetry.addData("Vision condition is: ",target);
+            telemetry.update();
+        }
+
+
+        Pose2d parkingOption1 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
+        Pose2d parkingOption2 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
+        Pose2d parkingOption3 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
+
+        Pose2d chosenTarget;  // use this later in your parking routine
+        switch (target) {
+            case ONE:
+                chosenTarget = parkingOption1;
+                break;
+            case TWO:
+                chosenTarget = parkingOption2;
+                break;
+            default:
+                chosenTarget = parkingOption3;
+                break;
+        }
 
 
      //   Lift lift = robot.getLift();
@@ -73,6 +104,7 @@ public class TestAuto extends LinearOpMode {
                      .waitSeconds(1)
                    .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
                    .waitSeconds(1) // repeat spot
+                .lineToLinearHeading(chosenTarget)
                 .build();
 
 
