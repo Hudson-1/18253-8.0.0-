@@ -180,7 +180,7 @@ public class Lift implements Subsystem {
     public void teleopUpdate() {
         upDpadPress.button(g.dpad_up);
         downDpadPress.button(g.dpad_down);
-        leftBumperPress.button(g.dpad_down);
+        leftBumperPress.button(g.left_bumper);
 
         updatePID();
         System.out.println("state: " + state);

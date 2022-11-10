@@ -40,7 +40,6 @@ public class TestAuto extends LinearOpMode {
             telemetry.update();
         }
 
-
         Pose2d parkingOption1 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
         Pose2d parkingOption2 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
         Pose2d parkingOption3 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
@@ -83,19 +82,14 @@ public class TestAuto extends LinearOpMode {
                 .lineTo(new Vector2d(36, -14))
                 .turn(Math.toRadians(-90))
                 .lineToLinearHeading(new Pose2d(50, -14, Math.toRadians(180)))
-
         // ----PICK UP CONE FROM STACK----
                 .waitSeconds(1)
-
         // ----MOVE AWAY, TURN, LINE UP WITH POLE, MOVE TO POLE-----
                 .lineTo(new Vector2d(36, -14))
                 .turn(Math.toRadians(90))
                 .strafeTo(new Vector2d(11, -14))
                 .strafeTo(new Vector2d(11, -6))
-
         // ----DELIVER CONE----
-
-
                    .addTemporalMarker(lift::stack)
                    .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.STACK_5,0)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
                 .waitSeconds(1)
