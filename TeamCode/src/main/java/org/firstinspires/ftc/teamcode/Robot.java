@@ -27,7 +27,7 @@ public class Robot {
         intake = new Intake(gamepad1, gamepad2, true);
 
         //  shooter = new Shooter(gamepad1, true);
-        lift = new Lift(gamepad1, true);
+        lift = new Lift(gamepad1, true,auto);
         list=new ArrayList<>();
 
         list.add(drive);
