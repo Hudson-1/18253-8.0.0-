@@ -138,17 +138,21 @@ public class Lift implements Subsystem {
         m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        resetServos();
+        resetServos(true);
     }
 
-    public void resetServos() {
+    public void resetServos(boolean doClaw) {
         v4bL.setPosition(1-rest);
         v4bR.setPosition(rest);
-        if (isAuto) {
-            claw.setPosition(clawClose);
-        } else {
-            claw.setPosition(clawOpen);
+
+        if (doClaw) {
+            if (isAuto) {
+                claw.setPosition(clawClose);
+            } else {
+                claw.setPosition(clawOpen);
+            }
         }
+
     }
 
     public void reset() {
@@ -190,7 +194,7 @@ public class Lift implements Subsystem {
 
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
-                    resetServos();
+                    resetServos(false);
                     if (timer.milliseconds() > WAIT_FOR_V4B_IN + WAIT_FOR_CLAW_MILLISECONDS) {
                         if(timer.milliseconds() < 600 + WAIT_FOR_CLAW_MILLISECONDS) {
                             setLiftPosition(LiftState.CHECK, 0);
