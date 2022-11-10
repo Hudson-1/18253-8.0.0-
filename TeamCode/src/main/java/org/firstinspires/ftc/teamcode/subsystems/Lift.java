@@ -205,20 +205,20 @@ public class Lift implements Subsystem {
                 }
 
 
-//                if (g.square) {
-//                    claw.setPosition(clawClose);
-//                }
-//                if (g.triangle) {
-//                    claw.setPosition(clawOpen);
-//                }
-
-                if (leftBumperPress.press()) {
-                    if (claw.getPosition() == clawClose) {
-                        claw.setPosition(clawOpen);
-                    } else {
-                        claw.setPosition(clawClose);
-                    }
+                if (g.square) {
+                    claw.setPosition(clawClose);
                 }
+                if (g.triangle) {
+                    claw.setPosition(clawOpen);
+                }
+
+//                if (leftBumperPress.press()) {
+//                    if (claw.getPosition() == clawClose) {
+//                        claw.setPosition(clawOpen);
+//                    } else {
+//                        claw.setPosition(clawClose);
+//                    }
+//                }
 
                 if(g.a) {
                     state = States.LOW;
