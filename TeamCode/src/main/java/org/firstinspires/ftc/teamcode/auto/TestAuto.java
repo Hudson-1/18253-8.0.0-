@@ -27,7 +27,7 @@ public class TestAuto extends LinearOpMode {
         Lift lift = robot.lift;
 
         // The starting position of the robot on the field:
-        Pose2d startPose = new Pose2d(36, -64, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(0, -64, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
         Vision vision = new Vision();
         vision.init(hardwareMap);
@@ -40,9 +40,9 @@ public class TestAuto extends LinearOpMode {
             telemetry.update();
         }
 
-        Pose2d parkingOption1 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
-        Pose2d parkingOption2 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
-        Pose2d parkingOption3 = new Pose2d(0,0,Math.toRadians(0)); // TODO edit this
+        Pose2d parkingOption3 = new Pose2d(64,-60,Math.toRadians(270)); // TODO edit this
+        Pose2d parkingOption2 = new Pose2d(0,-59,Math.toRadians(270)); // TODO edit this
+        Pose2d parkingOption1 = new Pose2d(-53,-60,Math.toRadians(270)); // TODO edit this
 
         Pose2d chosenTarget;  // use this later in your parking routine
         switch (target) {
@@ -62,43 +62,11 @@ public class TestAuto extends LinearOpMode {
 
         // The trajectory that the robot follows during the auto
         TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
-
+//test
         // ----DRIVE FORWARD, LINE UP WITH POLE, MOVE TO POLE----
-                .lineTo(new Vector2d(36, -14))
-                .strafeTo(new Vector2d(11, -14))
-                .strafeTo(new Vector2d(11, -6))
-                .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.HIGH,0))
-                .waitSeconds(.2)
-                .addTemporalMarker(lift::back)
-                .waitSeconds(.4)
-                .addTemporalMarker(lift::release)
-                .waitSeconds(.5)
-        //  ----DELIVER FIRST CONE"----
-                  .waitSeconds(1) // repeat spot
-                     .lineTo(new Vector2d(36, -12))
-        // ----BACK UP, MOVE, TURN, MOVE TO 5 STACK----
-                // Could try these with splines
-                .strafeTo(new Vector2d(11, -14))
-                .lineTo(new Vector2d(36, -14))
-                .turn(Math.toRadians(-90))
-                .lineToLinearHeading(new Pose2d(50, -14, Math.toRadians(180)))
-        // ----PICK UP CONE FROM STACK----
-                .waitSeconds(1)
-        // ----MOVE AWAY, TURN, LINE UP WITH POLE, MOVE TO POLE-----
-                .lineTo(new Vector2d(36, -14))
-                .turn(Math.toRadians(90))
-                .strafeTo(new Vector2d(11, -14))
-                .strafeTo(new Vector2d(11, -6))
-        // ----DELIVER CONE----
-                   .addTemporalMarker(lift::stack)
-                   .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.STACK_5,0)) // rinse and repeat through 1, 5 is when there are 5 cones in the stack
-                .waitSeconds(1)
-                   .addTemporalMarker(lift::grab)
-                    .lineToLinearHeading(new Pose2d(55, -12, Math.toRadians(180)))
-                     .waitSeconds(1)
-                   .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(135)))
-                   .waitSeconds(1) // repeat spot
+                .lineTo(new Vector2d(0, -60))
                 .lineToLinearHeading(chosenTarget)
+                .back(50)
                 .build();
 
 
@@ -112,5 +80,6 @@ public class TestAuto extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             robot.update();
         }
+
     }
 }

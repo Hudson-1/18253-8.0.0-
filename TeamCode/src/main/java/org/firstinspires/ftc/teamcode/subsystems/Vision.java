@@ -126,7 +126,7 @@ public class Vision implements Subsystem {
 
         if (getColorNum() > .3) {
             return Detection_States.THREE;
-        } else if (getColorNum() < 0.1) {
+        } else if (getColorNum() < 0.01) {
             return Detection_States.ONE;
         } else {
             return Detection_States.TWO;

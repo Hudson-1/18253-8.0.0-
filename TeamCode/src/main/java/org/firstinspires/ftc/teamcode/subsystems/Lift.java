@@ -27,9 +27,9 @@ public class Lift implements Subsystem {
 
     public static double REST_slides = 0.0;
     public static double CHECK_slides = 4.0;
-    public static double LOW_slides = 7;
-    public static double MID_slides = 16;
-    public static double HIGH_slides = 25.5;
+    public static double LOW_slides = 7.5;
+    public static double MID_slides = 16.5;
+    public static double HIGH_slides = 26.5;
     public static double STACK_slides = 9;
 
     public static double SPOOL_SIZE_IN = 0.5; // radius in inches
@@ -49,18 +49,18 @@ public class Lift implements Subsystem {
     public static double WAIT_FOR_CLAW_MILLISECONDS = 500;
     // when putting back in, we wait this amount of time after we start moving the v4b
     public static double WAIT_FOR_V4B_IN = 600;
-    public static double WAIT_FOR_CLAW_OPEN = 700;
+    public static double WAIT_FOR_CLAW_OPEN = 600;
     // change claw
 
     public static double clawOpen = 0.66;
-    public static double clawClose = .4;
+    public static double clawClose = .3;
 
     // change v4b
 
-    public static double rest = .31;
+    public static double rest = .29;
     public static double front = 0;
     public static double back = 0.9;
-    public static double stack = back - 0.2;
+    public static double stack = .55;
     boolean doResetClaw = true;
 
     Servo v4bL;
@@ -377,7 +377,7 @@ public class Lift implements Subsystem {
                 break;
             case STACK_DEPOSIT:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
-                    setLiftPosition(LiftState.HIGH, 28);
+                    setLiftPosition(LiftState.HIGH, 28.5);
                     if(getCurrentPosition() > 4){
                         front();
                     }
@@ -533,17 +533,17 @@ public class Lift implements Subsystem {
     public double stackHeightFromStatesForSlides(States stackStates) {
         switch (stackStates) {
             case STACK_1:
-                return 1.5;
+                return .1;
             case STACK_2:
-                return 2.5;
+                return 2.1;
             case STACK_3:
-                return 4;
+                return 3.3;
             case STACK_4:
-                return 5.5;
+                return 4.5;
             case STACK_5:
-                return 7;
+                return 6;
             case STACK_SAFE:
-                return 12;
+                return 10;
         }
         return 0;
     }
