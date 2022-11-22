@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -25,9 +26,8 @@ public class TestAuto extends LinearOpMode {
         Robot robot = new Robot(gamepad1, gamepad2, hardwareMap,true);
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
         Lift lift = robot.lift;
-
         // The starting position of the robot on the field:
-        Pose2d startPose = new Pose2d(0, -64, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(36, -64, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
         Vision vision = new Vision();
         vision.init(hardwareMap);
@@ -64,9 +64,41 @@ public class TestAuto extends LinearOpMode {
         TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
 //test
         // ----DRIVE FORWARD, LINE UP WITH POLE, MOVE TO POLE----
-                .lineTo(new Vector2d(0, -60))
-                .lineToLinearHeading(chosenTarget)
-                .back(50)
+                .setReversed(true)
+                .splineTo(new Vector2d(36, -36), Math.toRadians(90))
+                .UNSTABLE_addTemporalMarkerOffset(-1, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
+                .UNSTABLE_addTemporalMarkerOffset(-.9, lift::back)
+                .splineTo(new Vector2d(28, -8), Math.toRadians(120))
+                //deposit
+                .waitSeconds(.2)
+                .addTemporalMarker(lift::release)
+                .waitSeconds(.4)
+                .setReversed(false)
+                .UNSTABLE_addTemporalMarkerOffset(0.3, lift::front5)
+                .UNSTABLE_addTemporalMarkerOffset(0.4, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
+                .splineTo(new Vector2d(55, -17), Math.toRadians(0))
+                .setVelConstraint(new MecanumVelocityConstraint(20, 12))
+                .forward(7)
+                .resetVelConstraint()
+                .addTemporalMarker(lift::grab)
+                .waitSeconds(.3)
+                .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
+                .waitSeconds(.1)
+                .setReversed(true)
+                .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
+                .splineTo(new Vector2d(30, -10), Math.toRadians(105))
+                .waitSeconds(.2)
+                .addTemporalMarker(lift::release)
+                .waitSeconds(.4)
+//end
+
+                //bring arm
+
+                //end deposit
+               // .lineTo(new Vector2d(0, -50))
+              //  .lineToLinearHeading(chosenTarget)
+
+                //.back(50)
                 .build();
 
 
