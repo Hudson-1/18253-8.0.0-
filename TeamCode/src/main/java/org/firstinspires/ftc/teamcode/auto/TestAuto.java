@@ -40,11 +40,11 @@ public class TestAuto extends LinearOpMode {
             telemetry.update();
         }
 
-        Pose2d parkingOption3 = new Pose2d(64,-60,Math.toRadians(270)); // TODO edit this
-        Pose2d parkingOption2 = new Pose2d(0,-59,Math.toRadians(270)); // TODO edit this
-        Pose2d parkingOption1 = new Pose2d(-53,-60,Math.toRadians(270)); // TODO edit this
+        double parkingOption3 = -24; // TODO edit this
+        double parkingOption2 = .5; // TODO edit this
+        double parkingOption1 = 24; // TODO edit this
 
-        Pose2d chosenTarget;  // use this later in your parking routine
+        double chosenTarget;  // use this later in your parking routine
         switch (target) {
             case ONE:
                 chosenTarget = parkingOption1;
@@ -86,10 +86,20 @@ public class TestAuto extends LinearOpMode {
                 .waitSeconds(.1)
                 .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                .splineTo(new Vector2d(30, -10), Math.toRadians(105))
+                .splineTo(new Vector2d(30, -7), Math.toRadians(120))
+               // .splineTo(new Vector2d(30, -10), Math.toRadians(105))
                 .waitSeconds(.2)
                 .addTemporalMarker(lift::release)
                 .waitSeconds(.4)
+                // end of +1
+                .setReversed(false)
+                .forward(14)
+                .UNSTABLE_addTemporalMarkerOffset(0.3, lift::back4)
+                .UNSTABLE_addTemporalMarkerOffset(0.4, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
+                .turn(Math.toRadians(-120))
+                .forward(chosenTarget)
+               // .forward()
+
 //end
 
                 //bring arm

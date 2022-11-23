@@ -57,12 +57,12 @@ public class Lift implements Subsystem {
 
     // change v4b
 
-    public static double rest = .29;
+    public static double rest = .31;
     public static double front = 0;
     public static double back = 0.9;
     public static double stack = .55;
     public static double front5 = .11;
-    public static double front4 = .14;
+    public static double back4 = .31;
     boolean doResetClaw = true;
 
     Servo v4bL;
@@ -424,9 +424,9 @@ public class Lift implements Subsystem {
         v4bL.setPosition(1 - front5);
         v4bR.setPosition(front5);
     }
-    public void front4() {
-        v4bL.setPosition(1 - front4);
-        v4bR.setPosition(front4);
+    public void back4() {
+        v4bL.setPosition(1 - back4);
+        v4bR.setPosition(back4);
     }
 
     public void slidesHigh() {
