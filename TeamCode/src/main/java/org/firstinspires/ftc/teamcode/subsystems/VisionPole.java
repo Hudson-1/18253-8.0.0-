@@ -20,19 +20,21 @@ import org.openftc.easyopencv.OpenCvPipeline;
 // Vision
 
 @Config
-public class visionpole implements Subsystem {
+public class VisionPole implements Subsystem {
 
     // Configurable Vision Variables
     public static int webcamHeight = 240;
     public static int webcamWidth = 320;
 
-    // Current color it is detecting is light green.
-    public static double hueMin = 50;
-    public static double hueMax = 75;
-    public static double saturationMin = 60;
-    public static double saturationMax = 200;
-    public static double valueMin = 90;
-    public static double valueMax = 250;
+    // Current color it is detecting is yellow.
+    public static double hueMin = 0;
+    public static double hueMax = 100;
+    public static double saturationMin = 110;
+    public static double saturationMax = 255;
+    public static double valueMin = 100;
+    public static double valueMax = 255;
+    public static double cannyThreshold1 = 100;
+    public static double cannyThreshold2 = 300;
 
 
     private enum VisionType {
@@ -49,25 +51,12 @@ public class visionpole implements Subsystem {
         visionType = VisionType.BGR2HSVcolor;
         visionPipeline = new VisionPipeline();
 
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam1"));
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
 
-        // If the camera doesn't start up right away, maybe uncomment this section
-        /*
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened() {
-            }
-
-            @Override
-            public void onError(int errorCode) {
-            }
-        });
-
-         */
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() { webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.SIDEWAYS_LEFT); }
+            public void onOpened() { webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPRIGHT); }
             @Override public void onError(int errorCode) { }
         });
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
@@ -105,18 +94,33 @@ public class visionpole implements Subsystem {
             switch (visionType) {
 
                 case BGR2HSVcolor:
+                    workingMatrix = input.submat(100, 240, 60, 320); // added this to attempt to tune to middle
                     Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
                     Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
                     Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
                             new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
-
-                    matTotal = Core.sumElems(workingMatrix).val[0];
+                // SOMEHOW? Use Canny Edge Detection to find edges -- you might have to tune the thresholds for hysteresis
+                    Mat edges = new Mat();
+                    Imgproc.Canny(workingMatrix, edges, cannyThreshold1, cannyThreshold2);
+                // CODE HERE NEEDS TO IDENTIFY THE EDGES AND:
+                    // 1. CALCULATE THE DISTANCE BETWEEN THEM (THIS TELLS US HOW FAR AWAY WE ARE)
+                    // 2. CALCULATE THE CENTER POINT (THIS TELLS US HOW OFF OUR ANGLE IS)
+                    // OUR GOAL WILL BE TO TURN SO THE CENTER OF THE POLE MATCHES THE CENTER OF THE CAMERA SCREEN
+                    // AND TO MOVE SO THAT THE WIDTH OF THE POLE MATCHES A PREDETERMINED NUMBER
                     break;
 
             }
             return workingMatrix;
         }
     }
+
+
+    // THE CODE BELOW IS FROM DETECTING GREEN - IT WILL BE REPLACED
+
+    // THIS IS WHERE ALL THE MATH/LOGIC FOR AUTO AIM CAN GO
+
+    // INSTEAD OF RETURNING DETECTION STATES, IT WILL RETURN X, Y, AND ANGLE
+
 
     public double getColorNum() {
         return (getVisionPipeline().matTotal)/1000000;
