@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -15,6 +16,9 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //     implementation 'org.openftc:easyopencv:1.5.1'
 // Vision
@@ -33,8 +37,6 @@ public class VisionPole implements Subsystem {
     public static double saturationMax = 255;
     public static double valueMin = 100;
     public static double valueMax = 255;
-    public static double cannyThreshold1 = 100;
-    public static double cannyThreshold2 = 300;
 
 
     private enum VisionType {
@@ -94,14 +96,15 @@ public class VisionPole implements Subsystem {
             switch (visionType) {
 
                 case BGR2HSVcolor:
-                    workingMatrix = input.submat(100, 240, 60, 320); // added this to attempt to tune to middle
+                    workingMatrix = input.submat(100, 240, 60, 320); // added this if we want to crop the image
                     Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
                     Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
                     Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
                             new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
-                // SOMEHOW? Use Canny Edge Detection to find edges -- you might have to tune the thresholds for hysteresis
-                    Mat edges = new Mat();
-                    Imgproc.Canny(workingMatrix, edges, cannyThreshold1, cannyThreshold2);
+                    Imgproc.Canny(workingMatrix, workingMatrix, 100, 300);
+                //  List<MatOfPoint> contours = new ArrayList<>();
+                //  Imgproc.findContours(workingMatrix, contours, workingMatrix, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+
                 // CODE HERE NEEDS TO IDENTIFY THE EDGES AND:
                     // 1. CALCULATE THE DISTANCE BETWEEN THEM (THIS TELLS US HOW FAR AWAY WE ARE)
                     // 2. CALCULATE THE CENTER POINT (THIS TELLS US HOW OFF OUR ANGLE IS)

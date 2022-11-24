@@ -16,14 +16,15 @@ import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 
 @TeleOp
 public class PoleAimTele extends LinearOpMode {
-
+    boolean toggle = false;
+    boolean lastPress = false;
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
-    enum Mode {
+    public enum states {
         DRIVER_CONTROL,
-        AUTO_ALIGN
+        AUTO_ALIGN,
     }
 
-    private Mode currentMode = Mode.DRIVER_CONTROL;
+    private states currentMode = states.DRIVER_CONTROL;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -62,33 +63,44 @@ public class PoleAimTele extends LinearOpMode {
                             )
                     );
 
-                    // PRESSING A BUTTON TRIGGERS THE AUTO-ALIGN ROUTINE
+                    // PRESSING BUTTON TRIGGERS THE AUTO-ALIGN ROUTINE
+                    boolean button = gamepad1.right_stick_button;
 
-                    if (gamepad1.back) {    // Hudson, you may have another way of doing this
+                    if(button) {
+                        lastPress = true;
+                    }
 
-                        // THIS DEFINES OUR CURRENT LOCATION AS 0,0 WITH A 0 HEADING
-                        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
-                        drive.setPoseEstimate(startPose);
+                    if(lastPress && !button) {
+                        toggle = !toggle;
+                        lastPress = false;
+                    }
 
-                        // WE DO THE MATH TO DETERMINE HOW FAR WE NEED TO TURN AND MOVE TO BE ALIGNED
-
-                        // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT
-                        Trajectory poleAim = drive.trajectoryBuilder(startPose)
-                                .lineToLinearHeading(new Pose2d(2, -1, Math.toRadians(10)))
-                                // x, y, angle will be variables from the math
-                                .build();
-
-                        // WE DRIVE THAT TRAJECTORY
-                        drive.followTrajectoryAsync(poleAim);
-
-                        // WE SWITCH STATES WHILE WE DRIVE
-                        currentMode = Mode.AUTO_ALIGN;
+                    if(toggle) {
+                        currentMode = states.AUTO_ALIGN;
+                    } else {
+                        currentMode = states.DRIVER_CONTROL;
                     }
                     break;
+
                 case AUTO_ALIGN:
+                    // THIS DEFINES OUR CURRENT LOCATION AS 0,0 WITH A 0 HEADING
+                    Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
+                    drive.setPoseEstimate(startPose);
+
+                    // WE DO THE MATH TO DETERMINE HOW FAR WE NEED TO TURN AND MOVE TO BE ALIGNED
+
+                    // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT
+                    Trajectory poleAim = drive.trajectoryBuilder(startPose)
+                            .lineToLinearHeading(new Pose2d(2, 2, Math.toRadians(20)))
+                            //x, y, angle will be variables from the math
+                            .build();
+
+                    // WE DRIVE THAT TRAJECTORY
+                    drive.followTrajectoryAsync(poleAim);
+
                     // WHEN DONE WE CEDE CONTROL BACK TO THE DRIVER
                     if (!drive.isBusy()) {
-                        currentMode = Mode.DRIVER_CONTROL;
+                        currentMode = states.DRIVER_CONTROL;
                     }
                     break;
             }
