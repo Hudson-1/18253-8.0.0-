@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.arcrobotics.ftclib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -22,8 +23,6 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-//     implementation 'org.openftc:easyopencv:1.5.1'
-// Vision
 
 @Config
 public class VisionPole implements Subsystem {
@@ -51,11 +50,27 @@ public class VisionPole implements Subsystem {
     private VisionPipeline visionPipeline;
     private VisionType visionType;
 
+    InterpLUT angle;
+    InterpLUT distance;
+
     @Override
     public void init(HardwareMap map) {
         // Set the vision filter type:
         visionType = VisionType.BGR2HSVcolor;
         visionPipeline = new VisionPipeline();
+
+        angle = new InterpLUT();
+        distance = new InterpLUT();
+
+        angle.add(0, 0);
+        angle.add(-webcamWidth/2, 45);
+        angle.add(webcamWidth/2, -45);
+        angle.createLUT();
+
+        distance.add(100, -2);
+        distance.add(50, 0);
+        distance.add(5, 2);
+        distance.createLUT();
 
         webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
@@ -127,19 +142,19 @@ public class VisionPole implements Subsystem {
                         MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
                         Rect rect = Imgproc.boundingRect(copy);
 
-                    // This finds the width of the contour
+                        // This finds the width of the contour
                         int w = rect.width;
                         if (w > maxWidth) {
                             maxWidth = w;
                             maxRect = rect;
                         }
 
-                    // the width of the rect is going to be stored in width:
+                        // the width of the rect is going to be stored in width:
                         int maxWidthX = maxRect.width;
                         width = maxWidthX;
 
-                    // the center line of the rect is going to be stored in midLine:
-                        double midLineX = (maxRect.width / 2.0) - (webcamWidth / 2.0);
+                        // the center line of the rect is going to be stored in midLine:
+                        double midLineX = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
                         midLine = midLineX;
 
                         c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
@@ -161,6 +176,7 @@ public class VisionPole implements Subsystem {
                     //
                     // The helper class will then send the three variables X, Y, Angle to PoleAimTele
 
+
                     break;
 
             }
@@ -179,6 +195,10 @@ public class VisionPole implements Subsystem {
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
     }
+
+    public double getAngle() {return angle.get(midLine);}
+
+    public double getDistance() {return distance.get(width);}
 
 }
 

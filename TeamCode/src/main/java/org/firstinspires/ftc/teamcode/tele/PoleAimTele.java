@@ -77,6 +77,7 @@ public class PoleAimTele extends LinearOpMode {
 
                     if (toggle) {
                         currentMode = states.AUTO_ALIGN;
+
                     } else {
                         currentMode = states.DRIVER_CONTROL;
                     }
@@ -91,11 +92,22 @@ public class PoleAimTele extends LinearOpMode {
                     Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
                     drive.setPoseEstimate(startPose);
 
+                    double currentAngle = visionpole.getAngle();
+                    double currentDistance = visionpole.getDistance();
+
                     // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT, PULLING VARIABLES FROM THE HELPER CLASS
                     Trajectory poleAim = drive.trajectoryBuilder(startPose)
-                            .lineToLinearHeading(new Pose2d(4, 4, Math.toRadians(45)))
+                            .lineToLinearHeading(new Pose2d(currentDistance * Math.sin(Math.toRadians(currentAngle)),
+                                    currentDistance * Math.cos(Math.toRadians(currentAngle)),
+                                    Math.toRadians(currentAngle)))
                             //2, 2, 20 are placekeepers.
                             .build();
+
+                    dashboardTelemetry.addData("Angle: ", currentAngle);
+                    dashboardTelemetry.addData("Distance: ", currentDistance);
+                    dashboardTelemetry.addData("Midline: ", visionpole.getMid());
+                    dashboardTelemetry.addData("Width: ", visionpole.getWidth());
+                    dashboardTelemetry.update();
 
                     // WE DRIVE THAT TRAJECTORY
                     drive.followTrajectoryAsync(poleAim);
