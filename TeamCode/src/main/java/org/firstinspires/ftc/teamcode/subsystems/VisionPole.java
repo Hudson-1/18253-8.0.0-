@@ -116,9 +116,11 @@ public class VisionPole implements Subsystem {
                     // This finds the edges
                     Imgproc.Canny(workingMatrix, workingMatrix, 100, 300);
 
+
                     // This finds the contours
                     List<MatOfPoint> contours = new ArrayList<>();
-                    Imgproc.findContours(workingMatrix, contours, workingMatrix, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+                    Mat hierarchy = new Mat();
+                    Imgproc.findContours(workingMatrix, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                     int maxWidth = 0;
                     Rect maxRect = new Rect();
                     for (MatOfPoint c : contours) {
@@ -132,7 +134,7 @@ public class VisionPole implements Subsystem {
                             maxRect = rect;
                         }
 
-                    // the width of the rect is going to be stored in maxWidth:
+                    // the width of the rect is going to be stored in width:
                         int maxWidthX = maxRect.width;
                         width = maxWidthX;
 

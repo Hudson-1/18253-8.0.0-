@@ -93,7 +93,7 @@ public class PoleAimTele extends LinearOpMode {
 
                     // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT, PULLING VARIABLES FROM THE HELPER CLASS
                     Trajectory poleAim = drive.trajectoryBuilder(startPose)
-                            .lineToLinearHeading(new Pose2d(2, 2, Math.toRadians(20)))
+                            .lineToLinearHeading(new Pose2d(4, 4, Math.toRadians(45)))
                             //2, 2, 20 are placekeepers.
                             .build();
 
