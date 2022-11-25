@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -37,6 +39,7 @@ public class VisionPole implements Subsystem {
     public static double saturationMax = 255;
     public static double valueMin = 100;
     public static double valueMax = 255;
+    private double midLine;
 
 
     private enum VisionType {
@@ -102,8 +105,30 @@ public class VisionPole implements Subsystem {
                     Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
                             new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
                     Imgproc.Canny(workingMatrix, workingMatrix, 100, 300);
-                //  List<MatOfPoint> contours = new ArrayList<>();
-                //  Imgproc.findContours(workingMatrix, contours, workingMatrix, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+                    List<MatOfPoint> contours = new ArrayList<>();
+                    Imgproc.findContours(workingMatrix, contours, workingMatrix, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+                    int maxWidth = 0;
+                    Rect maxRect = new Rect();
+                    for (MatOfPoint c : contours) {
+                        MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
+                        Rect rect = Imgproc.boundingRect(copy);
+
+                        int w = rect.width;
+                        if(w > maxWidth) {
+                            maxWidth = w;
+                            maxRect = rect;
+                        }
+                        // the width of the rect is going to be stored in maxWidth
+                    // to get the midline:
+                        double midLineX = rect.width / 1.0;
+                        midLine = midLineX;
+                        c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
+                        copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
+                    }
+
+
+
+
 
                 // CODE HERE NEEDS TO IDENTIFY THE EDGES AND:
                     // 1. CALCULATE THE DISTANCE BETWEEN THEM (THIS TELLS US HOW FAR AWAY WE ARE)
@@ -138,6 +163,10 @@ public class VisionPole implements Subsystem {
         } else {
             return Detection_States.TWO;
         }
+    }
+
+    public double getMid() {
+        return midLine;
     }
 
     public VisionPipeline getVisionPipeline() {
