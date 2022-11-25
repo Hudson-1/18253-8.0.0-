@@ -40,6 +40,7 @@ public class VisionPole implements Subsystem {
     public static double valueMin = 100;
     public static double valueMax = 255;
     private double midLine;
+    private double width;
 
 
     private enum VisionType {
@@ -61,8 +62,13 @@ public class VisionPole implements Subsystem {
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened() { webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPRIGHT); }
-            @Override public void onError(int errorCode) { }
+            public void onOpened() {
+                webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+            }
         });
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
     }
@@ -91,20 +97,26 @@ public class VisionPole implements Subsystem {
         public Mat processFrame(Mat input) {
             input.copyTo(workingMatrix);
 
-            if(workingMatrix.empty()) {
+            if (workingMatrix.empty()) {
                 return input;
             }
 
-            // Here you set the filters and manipulate the image:
             switch (visionType) {
 
+                // Here we set the filters and manipulate the image:
+
                 case BGR2HSVcolor:
+                    // These filter out everything but yellow, and turn it into black and white
                     workingMatrix = input.submat(100, 240, 60, 320); // added this if we want to crop the image
                     Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
                     Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
                     Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
                             new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
+
+                    // This finds the edges
                     Imgproc.Canny(workingMatrix, workingMatrix, 100, 300);
+
+                    // This finds the contours
                     List<MatOfPoint> contours = new ArrayList<>();
                     Imgproc.findContours(workingMatrix, contours, workingMatrix, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                     int maxWidth = 0;
@@ -113,28 +125,40 @@ public class VisionPole implements Subsystem {
                         MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
                         Rect rect = Imgproc.boundingRect(copy);
 
+                    // This finds the width of the contour
                         int w = rect.width;
-                        if(w > maxWidth) {
+                        if (w > maxWidth) {
                             maxWidth = w;
                             maxRect = rect;
                         }
-                        // the width of the rect is going to be stored in maxWidth
-                    // to get the midline:
-                        double midLineX = rect.width / 1.0;
+
+                    // the width of the rect is going to be stored in maxWidth:
+                        int maxWidthX = maxRect.width;
+                        width = maxWidthX;
+
+                    // the center line of the rect is going to be stored in midLine:
+                        double midLineX = (maxRect.width / 2.0) - (webcamWidth / 2.0);
                         midLine = midLineX;
+
                         c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
                         copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
                     }
 
+                    // Now we know how wide the rectangle is, which tells us how much we need to change our distance
+                    // And we know the center line, which tells us how much we need to change our angle
+                    // We might want to look at this, which helps use these variables to calculate a spline:
+                    // https://tools.timodenk.com/cubic-spline-interpolation
 
+                    // We need to create a helper class that will do all the math
+                    // And for starters, we might just want it to output telemetry so we can test it
+                    // Like, at width 10px we need to move 10 inches
+                    // At 100px we need to move 2 inches
+                    // At 200px we need to move 0.5 inches
+                    // Then we can create a lookup table
+                    // https://docs.ftclib.org/ftclib/features/util#interplut-interpolated-look-up-table
+                    //
+                    // The helper class will then send the three variables X, Y, Angle to PoleAimTele
 
-
-
-                // CODE HERE NEEDS TO IDENTIFY THE EDGES AND:
-                    // 1. CALCULATE THE DISTANCE BETWEEN THEM (THIS TELLS US HOW FAR AWAY WE ARE)
-                    // 2. CALCULATE THE CENTER POINT (THIS TELLS US HOW OFF OUR ANGLE IS)
-                    // OUR GOAL WILL BE TO TURN SO THE CENTER OF THE POLE MATCHES THE CENTER OF THE CAMERA SCREEN
-                    // AND TO MOVE SO THAT THE WIDTH OF THE POLE MATCHES A PREDETERMINED NUMBER
                     break;
 
             }
@@ -142,46 +166,19 @@ public class VisionPole implements Subsystem {
         }
     }
 
-
-    // THE CODE BELOW IS FROM DETECTING GREEN - IT WILL BE REPLACED
-
-    // THIS IS WHERE ALL THE MATH/LOGIC FOR AUTO AIM CAN GO
-
-    // INSTEAD OF RETURNING DETECTION STATES, IT WILL RETURN X, Y, AND ANGLE
-
-
-    public double getColorNum() {
-        return (getVisionPipeline().matTotal)/1000000;
-    }
-
-    public Detection_States returnVisionState() {
-
-        if (getColorNum() > .3) {
-            return Detection_States.THREE;
-        } else if (getColorNum() < 0.01) {
-            return Detection_States.ONE;
-        } else {
-            return Detection_States.TWO;
-        }
-    }
-
     public double getMid() {
         return midLine;
+    }
+
+    public double getWidth() {
+        return width;
     }
 
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
     }
 
-    public enum Detection_States {
-        ONE,
-        TWO,
-        THREE
-    }
-
 }
-
-
 
 
 

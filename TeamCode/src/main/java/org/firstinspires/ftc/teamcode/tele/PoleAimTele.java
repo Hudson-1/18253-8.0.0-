@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
+
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
     public enum states {
         DRIVER_CONTROL,
@@ -39,8 +40,7 @@ public class PoleAimTele extends LinearOpMode {
         visionpole.init(hardwareMap);
 
         // Initialize custom cancelable SampleMecanumDrive class
-        SampleMecanumDrive
-                drive = new SampleMecanumDrive(hardwareMap);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         // We want to turn off velocity control for teleop
         // Velocity control per wheel is not necessary outside of motion profiled auto
@@ -66,16 +66,16 @@ public class PoleAimTele extends LinearOpMode {
                     // PRESSING BUTTON TRIGGERS THE AUTO-ALIGN ROUTINE
                     boolean button = gamepad1.right_stick_button;
 
-                    if(button) {
+                    if (button) {
                         lastPress = true;
                     }
 
-                    if(lastPress && !button) {
+                    if (lastPress && !button) {
                         toggle = !toggle;
                         lastPress = false;
                     }
 
-                    if(toggle) {
+                    if (toggle) {
                         currentMode = states.AUTO_ALIGN;
                     } else {
                         currentMode = states.DRIVER_CONTROL;
@@ -83,16 +83,18 @@ public class PoleAimTele extends LinearOpMode {
                     break;
 
                 case AUTO_ALIGN:
+                    // IGNORE THIS PART. IT'LL BE DONE BY HELPER CLASS
+                    // width = the width of the biggest pole found in our vision pipeline
+                    // double width = visionpole.getMid();
+
                     // THIS DEFINES OUR CURRENT LOCATION AS 0,0 WITH A 0 HEADING
                     Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
                     drive.setPoseEstimate(startPose);
 
-                    // WE DO THE MATH TO DETERMINE HOW FAR WE NEED TO TURN AND MOVE TO BE ALIGNED
-
-                    // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT
+                    // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT, PULLING VARIABLES FROM THE HELPER CLASS
                     Trajectory poleAim = drive.trajectoryBuilder(startPose)
                             .lineToLinearHeading(new Pose2d(2, 2, Math.toRadians(20)))
-                            //x, y, angle will be variables from the math
+                            //2, 2, 20 are placekeepers.
                             .build();
 
                     // WE DRIVE THAT TRAJECTORY
