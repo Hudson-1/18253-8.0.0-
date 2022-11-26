@@ -41,14 +41,8 @@ public class VisionPole implements Subsystem {
     private double midLine;
     private double width;
 
-
-    private enum VisionType {
-        BGR2HSVcolor
-    }
-
     OpenCvCamera webcam;
     private VisionPipeline visionPipeline;
-    private VisionType visionType;
 
     InterpLUT angle;
     InterpLUT distance;
@@ -59,9 +53,9 @@ public class VisionPole implements Subsystem {
         angle = new InterpLUT();
         distance = new InterpLUT();
 
-        angle.add(-webcamWidth/2, 45);
+        angle.add(-webcamWidth / 2, 45);
         angle.add(0, 0);
-        angle.add(webcamWidth/2, -45);
+        angle.add(webcamWidth / 2, -45);
         angle.createLUT();
 
         distance.add(5, 2);
@@ -69,8 +63,6 @@ public class VisionPole implements Subsystem {
         distance.add(100, -2);
         distance.createLUT();
 
-        // Set the vision filter type
-        visionType = VisionType.BGR2HSVcolor;
         visionPipeline = new VisionPipeline();
 
         webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
@@ -104,10 +96,7 @@ public class VisionPole implements Subsystem {
     //
     class VisionPipeline extends OpenCvPipeline {
 
-
-        private double matTotal = 0;
         private Mat workingMatrix = new Mat();
-
 
         @Override
         public Mat processFrame(Mat input) {
@@ -117,54 +106,47 @@ public class VisionPole implements Subsystem {
                 return input;
             }
 
-            switch (visionType) {
+            // Here we set the filters and manipulate the image:
 
-                // Here we set the filters and manipulate the image:
+            // These filter out everything but yellow, and turn it into black and white
+            workingMatrix = input.submat(100, 240, 60, 320); // added this if we want to crop the image
+            Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
+            Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
+            Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
+                    new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
 
-                case BGR2HSVcolor:
-                    // These filter out everything but yellow, and turn it into black and white
-                    workingMatrix = input.submat(100, 240, 60, 320); // added this if we want to crop the image
-                    Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
-                    Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
-                    Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
-                            new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
+            // This finds the edges
+            Imgproc.Canny(workingMatrix, workingMatrix, 100, 300);
 
-                    // This finds the edges
-                    Imgproc.Canny(workingMatrix, workingMatrix, 100, 300);
+            // This finds the contours
+            List<MatOfPoint> contours = new ArrayList<>();
+            Mat hierarchy = new Mat();
+            Imgproc.findContours(workingMatrix, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+            int maxWidth = 0;
+            Rect maxRect = new Rect();
+            for (MatOfPoint c : contours) {
+                MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
+                Rect rect = Imgproc.boundingRect(copy);
 
+                // This finds the width of the contour
+                int w = rect.width;
+                if (w > maxWidth) {
+                    maxWidth = w;
+                    maxRect = rect;
+                }
 
-                    // This finds the contours
-                    List<MatOfPoint> contours = new ArrayList<>();
-                    Mat hierarchy = new Mat();
-                    Imgproc.findContours(workingMatrix, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-                    int maxWidth = 0;
-                    Rect maxRect = new Rect();
-                    for (MatOfPoint c : contours) {
-                        MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
-                        Rect rect = Imgproc.boundingRect(copy);
+                // the width of the rect is going to be stored in width:
+                int maxWidthX = maxRect.width;
+                width = maxWidthX;
 
-                        // This finds the width of the contour
-                        int w = rect.width;
-                        if (w > maxWidth) {
-                            maxWidth = w;
-                            maxRect = rect;
-                        }
+                // the center line of the rect is going to be stored in midLine:
+                double midLineX = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
+                midLine = midLineX;
 
-                        // the width of the rect is going to be stored in width:
-                        int maxWidthX = maxRect.width;
-                        width = maxWidthX;
-
-                        // the center line of the rect is going to be stored in midLine:
-                        double midLineX = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
-                        midLine = midLineX;
-
-                        c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
-                        copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
-                    }
-
-                    break;
-
+                c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
+                copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
+
             return workingMatrix;
         }
     }
@@ -181,9 +163,13 @@ public class VisionPole implements Subsystem {
         return visionPipeline;
     }
 
-    public double getAngle() {return angle.get(midLine);}
+    public double getAngle() {
+        return angle.get(midLine);
+    }
 
-    public double getDistance() {return distance.get(width);}
+    public double getDistance() {
+        return distance.get(width);
+    }
 
 }
 
