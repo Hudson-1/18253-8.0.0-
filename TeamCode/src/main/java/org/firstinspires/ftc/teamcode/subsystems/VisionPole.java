@@ -55,22 +55,23 @@ public class VisionPole implements Subsystem {
 
     @Override
     public void init(HardwareMap map) {
-        // Set the vision filter type:
-        visionType = VisionType.BGR2HSVcolor;
-        visionPipeline = new VisionPipeline();
-
+        // Set the Look Up Tables
         angle = new InterpLUT();
         distance = new InterpLUT();
 
-        angle.add(0, 0);
         angle.add(-webcamWidth/2, 45);
+        angle.add(0, 0);
         angle.add(webcamWidth/2, -45);
         angle.createLUT();
 
-        distance.add(100, -2);
-        distance.add(50, 0);
         distance.add(5, 2);
+        distance.add(50, 0);
+        distance.add(100, -2);
         distance.createLUT();
+
+        // Set the vision filter type
+        visionType = VisionType.BGR2HSVcolor;
+        visionPipeline = new VisionPipeline();
 
         webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
@@ -160,22 +161,6 @@ public class VisionPole implements Subsystem {
                         c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
                         copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
                     }
-
-                    // Now we know how wide the rectangle is, which tells us how much we need to change our distance
-                    // And we know the center line, which tells us how much we need to change our angle
-                    // We might want to look at this, which helps use these variables to calculate a spline:
-                    // https://tools.timodenk.com/cubic-spline-interpolation
-
-                    // We need to create a helper class that will do all the math
-                    // And for starters, we might just want it to output telemetry so we can test it
-                    // Like, at width 10px we need to move 10 inches
-                    // At 100px we need to move 2 inches
-                    // At 200px we need to move 0.5 inches
-                    // Then we can create a lookup table
-                    // https://docs.ftclib.org/ftclib/features/util#interplut-interpolated-look-up-table
-                    //
-                    // The helper class will then send the three variables X, Y, Angle to PoleAimTele
-
 
                     break;
 

@@ -84,29 +84,26 @@ public class PoleAimTele extends LinearOpMode {
                     break;
 
                 case AUTO_ALIGN:
-                    // IGNORE THIS PART. IT'LL BE DONE BY HELPER CLASS
-                    // width = the width of the biggest pole found in our vision pipeline
-                    // double width = visionpole.getMid();
-
                     // THIS DEFINES OUR CURRENT LOCATION AS 0,0 WITH A 0 HEADING
                     Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
                     drive.setPoseEstimate(startPose);
 
                     double currentAngle = visionpole.getAngle();
                     double currentDistance = visionpole.getDistance();
+                    double trajectoryX = (currentDistance * Math.sin(Math.toRadians(currentAngle)));
+                    double trajectoryY = (currentDistance * Math.cos(Math.toRadians(currentAngle)));
 
                     // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT, PULLING VARIABLES FROM THE HELPER CLASS
                     Trajectory poleAim = drive.trajectoryBuilder(startPose)
-                            .lineToLinearHeading(new Pose2d(currentDistance * Math.sin(Math.toRadians(currentAngle)),
-                                    currentDistance * Math.cos(Math.toRadians(currentAngle)),
-                                    Math.toRadians(currentAngle)))
-                            //2, 2, 20 are placekeepers.
+                            .lineToLinearHeading(new Pose2d(trajectoryX, trajectoryY, Math.toRadians(currentAngle)))
                             .build();
 
-                    dashboardTelemetry.addData("Angle: ", currentAngle);
                     dashboardTelemetry.addData("Distance: ", currentDistance);
                     dashboardTelemetry.addData("Midline: ", visionpole.getMid());
                     dashboardTelemetry.addData("Width: ", visionpole.getWidth());
+                    dashboardTelemetry.addData("Trajectory X: ", trajectoryX);
+                    dashboardTelemetry.addData("Trajectory Y", trajectoryY);
+                    dashboardTelemetry.addData("Angle: ", currentAngle);
                     dashboardTelemetry.update();
 
                     // WE DRIVE THAT TRAJECTORY
