@@ -37,7 +37,7 @@ public class VisionPole implements Subsystem {
     public static double hueMax = 100;
     public static double saturationMin = 110;
     public static double saturationMax = 255;
-    public static double valueMin = 100;
+    public static double valueMin = 140;
     public static double valueMax = 255;
     private double midLine;
     private double width;
@@ -149,17 +149,17 @@ public class VisionPole implements Subsystem {
                 copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
 
-            return hierarchy;  // was return workingMatrix, but wondering if this will show contours
+            return workingMatrix;
         }
     }
 
     public double getMid() {
         return midLine;
-    }
+    }  // this is the midline position of the rectangle
 
     public double getWidth() {
         return width;
-    }
+    }  // this is the width of the rectangle
 
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
@@ -177,5 +177,16 @@ public class VisionPole implements Subsystem {
 }
 
 
-
-
+//  Measure alignment (which is the difference between midline and the center of the camera screen)
+//  Measure width (which is how wide the rectangle is)
+//  Use 2 LUTs to convert those inputs (which are in pixels) into inches
+//        - Alignment will become DISTANCE_FROM_CENTER
+//        - Width will become DISTANCE_FROM_POLE
+//  Perform an ATAN calc to get ANGLE_TO_TURN
+//          I think it's: double ANGLE_TO_TURN = Math.atan(DISTANCE_FROM_CENTER/DISTANCE_FROM_POLE);
+//  Use pythagorean formula in which A is DISTANCE_FROM_CENTER, B is DISTANCE_FROM_POLE,
+//          and C is a new variable DISTANCE_TO_TRAVEL
+//  In PoleAimTele we will:
+//         .turn(ANGLE_TO_TURN)
+//         .forward(DISTANCE_TO_TRAVEL - OFFSET)
+//         where OFFSET is how far back from the pole we need to be to drop the cone
