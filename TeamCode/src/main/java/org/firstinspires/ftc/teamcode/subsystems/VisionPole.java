@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.util.InterpLUT;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -143,11 +144,12 @@ public class VisionPole implements Subsystem {
                 double midLineX = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
                 midLine = midLineX;
 
+                hierarchy.release();
                 c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
                 copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
 
-            return workingMatrix;
+            return hierarchy;  // was return workingMatrix, but wondering if this will show contours
         }
     }
 
@@ -164,14 +166,16 @@ public class VisionPole implements Subsystem {
     }
 
     public double getAngle() {
-        return angle.get(midLine);
+        return angle.get(Range.clip(midLine, -webcamWidth / 2 + 0.01, webcamWidth / 2 - 0.01));
     }
 
     public double getDistance() {
-        return distance.get(width);
+        return distance.get(Range.clip(width, 5.01, 99.99));
     }
 
+
 }
+
 
 
 

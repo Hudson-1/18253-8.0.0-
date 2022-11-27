@@ -93,18 +93,19 @@ public class PoleAimTele extends LinearOpMode {
                     double trajectoryX = (currentDistance * Math.sin(Math.toRadians(currentAngle)));
                     double trajectoryY = (currentDistance * Math.cos(Math.toRadians(currentAngle)));
 
-                    // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT, PULLING VARIABLES FROM THE HELPER CLASS
+                    // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT
                     Trajectory poleAim = drive.trajectoryBuilder(startPose)
                             .lineToLinearHeading(new Pose2d(trajectoryX, trajectoryY, Math.toRadians(currentAngle)))
                             .build();
 
-                    dashboardTelemetry.addData("Distance: ", currentDistance);
-                    dashboardTelemetry.addData("Midline: ", visionpole.getMid());
-                    dashboardTelemetry.addData("Width: ", visionpole.getWidth());
-                    dashboardTelemetry.addData("Trajectory X: ", trajectoryX);
-                    dashboardTelemetry.addData("Trajectory Y", trajectoryY);
-                    dashboardTelemetry.addData("Angle: ", currentAngle);
-                    dashboardTelemetry.update();
+                    telemetry.addData("Width: ", visionpole.getWidth()); // width of rectangle reported by vision
+                    telemetry.addData("Midline: ", visionpole.getMid()); // distance from midline reported by vision
+                    telemetry.addLine();
+                    telemetry.addData("Trajectory X: ", trajectoryX); // the X we are feeding the trajectory
+                    telemetry.addData("Trajectory Y: ", trajectoryY); // the y we are feeding the trajectory
+                    telemetry.addData("Trajectory Angle: ", currentAngle); // the angle we are feeding the trajectory
+                    telemetry.update();
+
 
                     // WE DRIVE THAT TRAJECTORY
                     drive.followTrajectoryAsync(poleAim);
