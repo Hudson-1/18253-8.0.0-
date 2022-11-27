@@ -45,24 +45,24 @@ public class VisionPole implements Subsystem {
     OpenCvCamera webcam;
     private VisionPipeline visionPipeline;
 
-    InterpLUT angle;
-    InterpLUT distance;
+    InterpLUT DISTANCE_FROM_CENTER;
+    InterpLUT DISTANCE_FROM_POLE;
 
     @Override
     public void init(HardwareMap map) {
-        // Set the Look Up Tables
-        angle = new InterpLUT();
-        distance = new InterpLUT();
+        // Set the Look Up Tables, convert pixels to inches
+        DISTANCE_FROM_CENTER = new InterpLUT();
+        DISTANCE_FROM_POLE = new InterpLUT();
 
-        angle.add(-webcamWidth / 2, 45);
-        angle.add(0, 0);
-        angle.add(webcamWidth / 2, -45);
-        angle.createLUT();
+        DISTANCE_FROM_CENTER.add(-webcamWidth / 2, 45);
+        DISTANCE_FROM_CENTER.add(0, 0);
+        DISTANCE_FROM_CENTER.add(webcamWidth / 2, -45);
+        DISTANCE_FROM_CENTER.createLUT();
 
-        distance.add(5, 2);
-        distance.add(50, 0);
-        distance.add(100, -2);
-        distance.createLUT();
+        DISTANCE_FROM_POLE.add(5, 2);
+        DISTANCE_FROM_POLE.add(50, 0);
+        DISTANCE_FROM_POLE.add(100, -2);
+        DISTANCE_FROM_POLE.createLUT();
 
         visionPipeline = new VisionPipeline();
 
@@ -138,16 +138,33 @@ public class VisionPole implements Subsystem {
 
                 // the width of the rect is going to be stored in width:
                 int maxWidthX = maxRect.width;
-                width = maxWidthX;
+                width = maxWidthX; // the width of the rectangle of the pole
 
                 // the center line of the rect is going to be stored in midLine:
                 double midLineX = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
-                midLine = midLineX;
+                midLine = midLineX; // x of the mid of pole
 
                 hierarchy.release();
                 c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
                 copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
+
+            //  Measure alignment (which is the difference between midline and the center of the camera screen)
+            //  Measure width (which is how wide the rectangle is)
+            //  Use 2 LUTs to convert those inputs (which are in pixels) into inches
+            //        - Alignment will become DISTANCE_FROM_CENTER
+            //        - Width will become DISTANCE_FROM_POLE
+            //  Perform an ATAN calc to get ANGLE_TO_TURN
+            //          I think it's: double ANGLE_TO_TURN = Math.atan(DISTANCE_FROM_CENTER/DISTANCE_FROM_POLE);
+            //  Use pythagorean formula in which B is DISTANCE_FROM_CENTER, A is DISTANCE_FROM_POLE,
+            //          and C is a new variable DISTANCE_TO_TRAVEL
+            //  In PoleAimTele we will:
+            //         .turn(ANGLE_TO_TURN)
+            //         .forward(DISTANCE_TO_TRAVEL - OFFSET)
+            //         where OFFSET is how far back from the pole we need to be to drop the cone
+
+
+
 
             return workingMatrix;
         }
@@ -165,28 +182,15 @@ public class VisionPole implements Subsystem {
         return visionPipeline;
     }
 
-    public double getAngle() {
-        return angle.get(Range.clip(midLine, -webcamWidth / 2 + 0.01, webcamWidth / 2 - 0.01));
-    }
+   // public double getAngle() {
+  //      return angle.get(Range.clip(midLine, -webcamWidth / 2 + 0.01, webcamWidth / 2 - 0.01));
+ //   }
 
-    public double getDistance() {
-        return distance.get(Range.clip(width, 5.01, 99.99));
-    }
+  //  public double getDistance() {
+   //     return distance.get(Range.clip(width, 5.01, 99.99));
+ //   }
 
 
 }
 
 
-//  Measure alignment (which is the difference between midline and the center of the camera screen)
-//  Measure width (which is how wide the rectangle is)
-//  Use 2 LUTs to convert those inputs (which are in pixels) into inches
-//        - Alignment will become DISTANCE_FROM_CENTER
-//        - Width will become DISTANCE_FROM_POLE
-//  Perform an ATAN calc to get ANGLE_TO_TURN
-//          I think it's: double ANGLE_TO_TURN = Math.atan(DISTANCE_FROM_CENTER/DISTANCE_FROM_POLE);
-//  Use pythagorean formula in which A is DISTANCE_FROM_CENTER, B is DISTANCE_FROM_POLE,
-//          and C is a new variable DISTANCE_TO_TRAVEL
-//  In PoleAimTele we will:
-//         .turn(ANGLE_TO_TURN)
-//         .forward(DISTANCE_TO_TRAVEL - OFFSET)
-//         where OFFSET is how far back from the pole we need to be to drop the cone
