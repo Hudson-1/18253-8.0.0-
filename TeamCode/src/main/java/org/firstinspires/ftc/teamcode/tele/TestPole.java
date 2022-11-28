@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 
+@Disabled
 @Config
 @TeleOp
 public class TestPole extends LinearOpMode {
@@ -143,10 +145,10 @@ drive.setPoseEstimate(startPose);
 */
 
                     // THEN GET THE READINGS
-                    double currentAngle = visionpole.getAngle();
-                    double currentDistance = visionpole.getDistance();
-                    double trajectoryX = (currentDistance * Math.sin(Math.toRadians(currentAngle)));
-                    double trajectoryY = (currentDistance * Math.cos(Math.toRadians(currentAngle)));
+ //                   double currentAngle = visionpole.getAngle();
+ //                   double currentDistance = visionpole.getDistance();
+ //                   double trajectoryX = (currentDistance * Math.sin(Math.toRadians(currentAngle)));
+ //                   double trajectoryY = (currentDistance * Math.cos(Math.toRadians(currentAngle)));
 
                     telemetry.addData("Angle: ", initialTestAngle);
                     telemetry.addData("Midline: ", midline1);
