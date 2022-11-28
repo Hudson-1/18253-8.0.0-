@@ -163,7 +163,7 @@ public class VisionPole implements Subsystem {
             //         .forward(DISTANCE_TO_TRAVEL - OFFSET)
             //         where OFFSET is how far back from the pole we need to be to drop the cone
 
-            // test change from Sophie
+            //sophie going through the process
 
             return workingMatrix;
         }
