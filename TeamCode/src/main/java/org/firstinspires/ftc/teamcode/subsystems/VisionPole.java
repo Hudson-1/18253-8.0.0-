@@ -55,18 +55,18 @@ public class VisionPole implements Subsystem {
         DISTANCE_FROM_POLE = new InterpLUT();
 
         // Create a Look Up Table that converts distance to the center from pixels (image) to inches (real world)
-        DISTANCE_FROM_CENTER.add(-webcamWidth / 2.0, 45);
-        DISTANCE_FROM_CENTER.add(0, 0);
-        DISTANCE_FROM_CENTER.add(webcamWidth / 2.0, -45);
+        DISTANCE_FROM_CENTER.add(-webcamWidth / 2.0, 45);   // if the pixel is at the left edge of the image, its 'real life' distance to the center is 45 inches?
+        DISTANCE_FROM_CENTER.add(0, 0);                     // if the pixel is at the center of the image, its 'real life' distance to the center is 0
+        DISTANCE_FROM_CENTER.add(webcamWidth / 2.0, -45);   // if the pixel is at the right edge of the image, its 'real life' distance to the center is -45 inches.
         DISTANCE_FROM_CENTER.createLUT();
 
         // Create a Look Up Table that converts width of the pole (pixels) to the distance between the pole and camera (inches)
-        DISTANCE_FROM_POLE.add(5, 2);
-        DISTANCE_FROM_POLE.add(50, 0);
-        DISTANCE_FROM_POLE.add(100, -2);
+        DISTANCE_FROM_POLE.add(5, 2);   // if the width of the pole is 5 pixels, its actual distance to the camera is 2 inches?
+        DISTANCE_FROM_POLE.add(50, 0);  // if the width of the pole is 50 pixels, its actual distance to the camera in real life is 0
+        DISTANCE_FROM_POLE.add(100, -2);// if the width of the pole is 100 pixels, its actual distance to the camera in real life is -2 inches, meaning too close to be possible
         DISTANCE_FROM_POLE.createLUT();
 
-        // Initialize new VieonPipeline instance
+        // Initialize new VisionPipeline instance
         visionPipeline = new VisionPipeline();
 
         // Create a new Webcam instance and get the visionPipeline
@@ -137,9 +137,8 @@ public class VisionPole implements Subsystem {
                 Rect boundingRect = Imgproc.boundingRect(contour);
 
                 // This finds the width of the contour
-                int boundingRectWidth = boundingRect.width;
-                if (boundingRectWidth > maxWidth) {
-                    maxWidth = boundingRectWidth;
+                if (boundingRect.width > maxWidth) {
+                    maxWidth = boundingRect.width;
                     maxRect = boundingRect;
                 }
 
