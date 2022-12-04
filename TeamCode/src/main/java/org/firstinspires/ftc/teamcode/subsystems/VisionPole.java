@@ -39,8 +39,8 @@ public class VisionPole implements Subsystem {
     public static double saturationMax = 255;
     public static double valueMin = 140;
     public static double valueMax = 255;
-    private double midLine;
-    private double width;
+    private double distanceFromPoleCenterToImageCenter;
+    private double widthOfTheClosestPole;
 
     OpenCvCamera webcam;
     private VisionPipeline visionPipeline;
@@ -54,21 +54,26 @@ public class VisionPole implements Subsystem {
         DISTANCE_FROM_CENTER = new InterpLUT();
         DISTANCE_FROM_POLE = new InterpLUT();
 
-        DISTANCE_FROM_CENTER.add(-webcamWidth / 2, 45);
+        // Create a Look Up Table that converts distance to the center from pixels (image) to inches (real world)
+        DISTANCE_FROM_CENTER.add(-webcamWidth / 2.0, 45);
         DISTANCE_FROM_CENTER.add(0, 0);
-        DISTANCE_FROM_CENTER.add(webcamWidth / 2, -45);
+        DISTANCE_FROM_CENTER.add(webcamWidth / 2.0, -45);
         DISTANCE_FROM_CENTER.createLUT();
 
+        // Create a Look Up Table that converts width of the pole (pixels) to the distance between the pole and camera (inches)
         DISTANCE_FROM_POLE.add(5, 2);
         DISTANCE_FROM_POLE.add(50, 0);
         DISTANCE_FROM_POLE.add(100, -2);
         DISTANCE_FROM_POLE.createLUT();
 
+        // Initialize new VieonPipeline instance
         visionPipeline = new VisionPipeline();
 
+        // Create a new Webcam instance and get the visionPipeline
         webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
 
+        // Open the camera and start processing the frames from the camera
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -125,32 +130,31 @@ public class VisionPole implements Subsystem {
             Imgproc.findContours(workingMatrix, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
             int maxWidth = 0;
             Rect maxRect = new Rect();
+
+            // Enumerate each contour and find the one that's closest to the camera, assuming that is the closet pole
             for (MatOfPoint c : contours) {
-                MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
-                Rect rect = Imgproc.boundingRect(copy);
+                MatOfPoint2f contour = new MatOfPoint2f(c.toArray());
+                Rect boundingRect = Imgproc.boundingRect(contour);
 
                 // This finds the width of the contour
-                int w = rect.width;
-                if (w > maxWidth) {
-                    maxWidth = w;
-                    maxRect = rect;
+                int boundingRectWidth = boundingRect.width;
+                if (boundingRectWidth > maxWidth) {
+                    maxWidth = boundingRectWidth;
+                    maxRect = boundingRect;
                 }
 
-                // the width of the rect is going to be stored in width:
-                int maxWidthX = maxRect.width;
-                width = maxWidthX; // the width of the rectangle of the pole
-
-                // the center line of the rect is going to be stored in midLine:
-                double midLineX = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
-                midLine = midLineX; // x of the mid of pole
-
+                // Release the temp objects
                 hierarchy.release();
                 c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
-                copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
+                contour.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
 
-            //  Measure alignment (which is the difference between midline and the center of the camera screen)
-            //  Measure width (which is how wide the rectangle is)
+            // Save the width of the closest pole to widthOfTheClosestPole in pixels
+            widthOfTheClosestPole = maxWidth;
+
+            // Calculate the distance from the center of the pole to the center of the image
+            distanceFromPoleCenterToImageCenter = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
+
             //  Use 2 LUTs to convert those inputs (which are in pixels) into inches
             //        - Alignment will become DISTANCE_FROM_CENTER
             //        - Width will become DISTANCE_FROM_POLE
@@ -170,11 +174,11 @@ public class VisionPole implements Subsystem {
     }
 
     public double getMid() {
-        return midLine;
+        return distanceFromPoleCenterToImageCenter;
     }  // this is the midline position of the rectangle
 
     public double getWidth() {
-        return width;
+        return widthOfTheClosestPole;
     }  // this is the width of the rectangle
 
     public VisionPipeline getVisionPipeline() {
@@ -188,7 +192,6 @@ public class VisionPole implements Subsystem {
   //  public double getDistance() {
    //     return distance.get(Range.clip(width, 5.01, 99.99));
  //   }
-
 
 }
 
