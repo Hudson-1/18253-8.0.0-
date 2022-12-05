@@ -1,16 +1,14 @@
+
 package org.firstinspires.ftc.teamcode.tele;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -102,32 +100,34 @@ public class TestPole extends LinearOpMode {
 
                 case AUTO_ALIGN:
                     drive.turn(initialTestAngle);
-                    midline1 = visionpole.getMid();
+                    midline1 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
                     drive.turn (angleIncrease);
-                    midline2 = visionpole.getMid();
+                    midline2 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
                     drive.turn (angleIncrease);
-                    midline3 = visionpole.getMid();
+                    midline3 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
                     drive.turn (angleIncrease);
-                    midline4 = visionpole.getMid();
+                    midline4 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
                     drive.turn (angleIncrease);
-                    midline5 = visionpole.getMid();
+                    midline5 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
                     drive.turn (angleIncrease);
-                    midline6 = visionpole.getMid();
+                    midline6 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    midline7 = visionpole.getMid();
+                    midline7 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     drive.turn (angleIncrease);
-                    midline8 = visionpole.getMid();
-                    sleep(1000);
-                    drive.turn (angleIncrease);
-                    midline9 = visionpole.getMid();
+                    midline8 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
                     drive.turn (angleIncrease);
-                    midline10 = visionpole.getMid();
+                    midline9 = visionpole.getDistanceFromPoleCenterToImageCenter();
+                    sleep(1000);
+                    drive.turn (angleIncrease);
+                    midline10 = visionpole.getDistanceFromPoleCenterToImageCenter();
+
+
 
 
 /*
@@ -181,3 +181,4 @@ drive.setPoseEstimate(startPose);
         }
     }
 }
+

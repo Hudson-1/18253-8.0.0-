@@ -31,6 +31,8 @@ public class VisionPole implements Subsystem {
     // Configurable Vision Variables
     public static int webcamHeight = 240;
     public static int webcamWidth = 320;
+    public static double FOV = 55.0;            // FOV of the webcam
+    public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
 
     // Current color it is detecting is yellow.
     public static double hueMin = 0;
@@ -154,31 +156,30 @@ public class VisionPole implements Subsystem {
             // Calculate the distance from the center of the pole to the center of the image
             distanceFromPoleCenterToImageCenter = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
 
-            //  Use 2 LUTs to convert those inputs (which are in pixels) into inches
-            //        - Alignment will become DISTANCE_FROM_CENTER
-            //        - Width will become DISTANCE_FROM_POLE
-            //  Perform an ATAN calc to get ANGLE_TO_TURN
-            //          I think it's: double ANGLE_TO_TURN = Math.atan(DISTANCE_FROM_CENTER/DISTANCE_FROM_POLE);
-            //  Use pythagorean formula in which B is DISTANCE_FROM_CENTER, A is DISTANCE_FROM_POLE,
-            //          and C is a new variable DISTANCE_TO_TRAVEL
-            //  In PoleAimTele we will:
-            //         .turn(ANGLE_TO_TURN)
-            //         .forward(DISTANCE_TO_TRAVEL - OFFSET)
-            //         where OFFSET is how far back from the pole we need to be to drop the cone
-
-            //sophie going through the process
-
             return workingMatrix;
         }
     }
 
-    public double getMid() {
+    public double getDistanceFromPoleCenterToImageCenter() {
         return distanceFromPoleCenterToImageCenter;
-    }  // this is the midline position of the rectangle
+    }
 
-    public double getWidth() {
+    public double getWidthOfTheClosestPole() {
         return widthOfTheClosestPole;
-    }  // this is the width of the rectangle
+    }
+
+
+    public double getAngle() {
+        // This is supposed to be the angle between the line from camera to pole, and the line from camera to center of the image
+        // If this value is negative, it means the robot needs to turn left, if the value is positive, it means the robot needs to turn right
+        return distanceFromPoleCenterToImageCenter * FOV / webcamWidth;
+    }
+
+    public double getDistance() {
+        // This is supposed to be the distance between camera and pole *if and only if* when pole is at the center of the image
+        double angle = widthOfTheClosestPole * 0.5 * FOV / webcamWidth; // get the angle based on the width of the closest pole
+        return poleDiameter / 2.0 / Math.tan(angle);                    // get the actual distance between pole and the camera in inches
+    }
 
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
