@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.util.InterpLUT;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -110,7 +109,7 @@ public class VisionPole implements Subsystem {
         public Mat processFrame(Mat input) {
             input.copyTo(workingMatrix);
 
-            if (workingMatrix.empty()) {
+            if (workingMatrix.empty()) { // If the frame is empty, just return
                 return input;
             }
 
@@ -154,6 +153,8 @@ public class VisionPole implements Subsystem {
             widthOfTheClosestPole = maxWidth;
 
             // Calculate the distance from the center of the pole to the center of the image
+            // If the value is negative, it is at the left side of the center;
+            // otherwise, it is at the right side of the image center
             distanceFromPoleCenterToImageCenter = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
 
             return workingMatrix;
@@ -178,20 +179,13 @@ public class VisionPole implements Subsystem {
     public double getDistance() {
         // This is supposed to be the distance between camera and pole *if and only if* when pole is at the center of the image
         double angle = widthOfTheClosestPole * 0.5 * FOV / webcamWidth; // get the angle based on the width of the closest pole
-        return poleDiameter / 2.0 / Math.tan(angle);                    // get the actual distance between pole and the camera in inches
+        return poleDiameter * 0.5 / Math.tan(angle);                    // get the actual distance between pole and the camera in inches
     }
 
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
     }
 
-   // public double getAngle() {
-  //      return angle.get(Range.clip(midLine, -webcamWidth / 2 + 0.01, webcamWidth / 2 - 0.01));
- //   }
-
-  //  public double getDistance() {
-   //     return distance.get(Range.clip(width, 5.01, 99.99));
- //   }
 
 }
 
