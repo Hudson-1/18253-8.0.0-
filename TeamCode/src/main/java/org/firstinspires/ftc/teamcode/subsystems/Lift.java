@@ -46,29 +46,35 @@ public class Lift implements Subsystem {
     public static double DECENT_POWER_MAX = 0.2;
 
     // this is the time we wait for the claw to close before moving.
-    public static double WAIT_FOR_CLAW_MILLISECONDS = 500;
+    public static double WAIT_FOR_CLAW_MILLISECONDS = 200;
     // when putting back in, we wait this amount of time after we start moving the v4b
-    public static double WAIT_FOR_V4B_IN = 600;
+    public static double WAIT_FOR_V4B_IN = 800;
     public static double WAIT_FOR_CLAW_OPEN = 600;
     // change claw
 
-    public static double clawOpen = 0.66;
-    public static double clawClose = .3;
+    public static double clawOpen = 0.3;
+    public static double clawClose = 0;
 
     // change v4b
 
-    public static double rest = .31;
+    public static double rest = .34;
     public static double front = 0;
-    public static double back = 0.9;
+    public static double back = 0.95;
     public static double stack = .55;
     public static double front5 = .11;
-    public static double back4 = .31;
+    public static double front4 = .15;
+    public static double front3 = .19;
+    public static double front2 = .27;
+    public static double front1 = .34;
+    public static double intakein = .4;
+    public static double intakeout = .1;
     boolean doResetClaw = true;
 
     Servo v4bL;
     Servo v4bR;
     Servo claw;
-
+    Servo SIL;
+    Servo SIR;
 
 
 
@@ -129,7 +135,8 @@ public class Lift implements Subsystem {
         v4bL = map.get(Servo.class, "v4bl");
         v4bR = map.get(Servo.class, "v4br");
         claw = map.get(Servo.class, "claw");
-
+        SIL = map.get(Servo.class, "SIL");
+        SIR = map.get(Servo.class, "SIR");
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
         //  m2.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -200,6 +207,7 @@ public class Lift implements Subsystem {
                 // after the timer has run enough, it will call reset servos and put the v4b back in
                 if (timer.milliseconds() > WAIT_FOR_CLAW_OPEN) {
                     resetServos(doResetClaw);
+                    intakein();
                     doResetClaw = false;
                     if (timer.milliseconds() > WAIT_FOR_V4B_IN + WAIT_FOR_CLAW_MILLISECONDS) {
                         if(timer.milliseconds() < 600 + WAIT_FOR_CLAW_MILLISECONDS) {
@@ -229,6 +237,7 @@ public class Lift implements Subsystem {
                 if(g.a) {
                     state = States.LOW;
                     grab();
+                    intakeout();
                     timer.reset();
                     doResetClaw = true;
                 }
@@ -236,6 +245,7 @@ public class Lift implements Subsystem {
                 if(g.b) {
                     state = States.MID;
                     grab();
+                    intakeout();
                     timer.reset();
                     doResetClaw = true;
 
@@ -244,6 +254,7 @@ public class Lift implements Subsystem {
                 if(g.right_bumper) {
                     state = States.HIGH;
                     grab();
+                    intakeout();
                     timer.reset();
                     doResetClaw = true;
 
@@ -401,6 +412,18 @@ public class Lift implements Subsystem {
         claw.setPosition(clawOpen);
     }
 
+    public void intakein() {
+        SIL.setPosition(1-intakein);
+        SIR.setPosition(intakein);
+
+    }
+
+    public void intakeout() {
+        SIL.setPosition(1-intakeout);
+        SIR.setPosition(intakeout);
+
+    }
+
     public void back() {
         v4bL.setPosition(1-back);
         v4bR.setPosition(back);
@@ -424,9 +447,21 @@ public class Lift implements Subsystem {
         v4bL.setPosition(1 - front5);
         v4bR.setPosition(front5);
     }
-    public void back4() {
-        v4bL.setPosition(1 - back4);
-        v4bR.setPosition(back4);
+    public void front4() {
+        v4bL.setPosition(1 - front4);
+        v4bR.setPosition(front4);
+    }
+    public void front3() {
+        v4bL.setPosition(1 - front3);
+        v4bR.setPosition(front3);
+    }
+    public void front2() {
+        v4bL.setPosition(1 - front2);
+        v4bR.setPosition(front2);
+    }
+    public void front1() {
+        v4bL.setPosition(1 - front1);
+        v4bR.setPosition(front1);
     }
 
     public void slidesHigh() {

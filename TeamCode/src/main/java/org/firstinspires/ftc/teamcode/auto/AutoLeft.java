@@ -3,21 +3,20 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
-
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+@Disabled
 @Config
 @Autonomous
-public class TestAuto extends LinearOpMode {
+public class AutoLeft extends LinearOpMode {
 
 
     @Override
@@ -27,7 +26,7 @@ public class TestAuto extends LinearOpMode {
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
         Lift lift = robot.lift;
         // The starting position of the robot on the field:
-        Pose2d startPose = new Pose2d(36, -64, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(-36, -64, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
         Vision vision = new Vision();
         vision.init(hardwareMap);
@@ -65,10 +64,10 @@ public class TestAuto extends LinearOpMode {
 //test
         // ----DRIVE FORWARD, LINE UP WITH POLE, MOVE TO POLE----
                 .setReversed(true)
-                .splineTo(new Vector2d(36, -36), Math.toRadians(90))
+                .splineTo(new Vector2d(-36, -36), Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
                 .UNSTABLE_addTemporalMarkerOffset(-.9, lift::back)
-                .splineTo(new Vector2d(28, -8), Math.toRadians(120))
+                .splineTo(new Vector2d(-28, -8), Math.toRadians(60))
                 //deposit
                 .waitSeconds(.2)
                 .addTemporalMarker(lift::release)
@@ -76,7 +75,7 @@ public class TestAuto extends LinearOpMode {
                 .setReversed(false)
                 .UNSTABLE_addTemporalMarkerOffset(0.3, lift::front5)
                 .UNSTABLE_addTemporalMarkerOffset(0.4, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
-                .splineTo(new Vector2d(55, -17), Math.toRadians(0))
+                .splineTo(new Vector2d(-55, -17), Math.toRadians(180))
                 .setVelConstraint(new MecanumVelocityConstraint(20, 12))
                 .forward(7)
                 .resetVelConstraint()
@@ -86,7 +85,7 @@ public class TestAuto extends LinearOpMode {
                 .waitSeconds(.1)
                 .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                .splineTo(new Vector2d(30, -7), Math.toRadians(120))
+                .splineTo(new Vector2d(-30, -7), Math.toRadians(60))
                // .splineTo(new Vector2d(30, -10), Math.toRadians(105))
                 .waitSeconds(.2)
                 .addTemporalMarker(lift::release)
@@ -94,9 +93,9 @@ public class TestAuto extends LinearOpMode {
                 // end of +1
                 .setReversed(false)
                 .forward(14)
-                .UNSTABLE_addTemporalMarkerOffset(0.3, lift::back4)
+                .UNSTABLE_addTemporalMarkerOffset(0.3, lift::front4)
                 .UNSTABLE_addTemporalMarkerOffset(0.4, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
-                .turn(Math.toRadians(-120))
+                .turn(Math.toRadians(-60))
                 .forward(chosenTarget)
                // .forward()
 
