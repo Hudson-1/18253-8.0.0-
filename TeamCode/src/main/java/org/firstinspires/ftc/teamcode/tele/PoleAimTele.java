@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.tele;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.util.Angle;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,9 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
-@Disabled
+
 @TeleOp
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
@@ -36,9 +33,6 @@ public class PoleAimTele extends LinearOpMode {
 
         Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, false);
 
-        // TO BE FIGURED OUT -- WHEN SHOULD THE CAMERA TURN ON? WILL IT BE ON THE ENTIRE TIME?
-        VisionPole visionpole = new VisionPole();
-        visionpole.init(hardwareMap);
 
         // Initialize custom cancelable SampleMecanumDrive class
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
@@ -85,31 +79,65 @@ public class PoleAimTele extends LinearOpMode {
                     break;
 
                 case AUTO_ALIGN:
-                    // THIS DEFINES OUR CURRENT LOCATION AS 0,0 WITH A 0 HEADING
+
+                    /*
+                    After calculating the angle we need to turn and the distance we need to drive:
+                        - We start by only turning the angle.
+                        - Then we have a loop:
+                        Update the camera image and reanalyze it.
+                            If the midline of the pole is not the same as the center of the screen (plus or minus a small amount) we repeat the loop.
+                            If the midline is the same as the center if the screen (plus or minus), we move on.
+                        - Then we drive forward the specified distance.
+                       At this point we SHOULD be where we need to be.
+                       But we could always run the loop one more time if we find it’s still not accurate enough.
+                     */
+
                     Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
                     drive.setPoseEstimate(startPose);
 
-                    double currentAngle = visionpole.getAngle();
-                    double currentDistance = visionpole.getDistance();
-                    double trajectoryX = (currentDistance * Math.sin(Math.toRadians(currentAngle)));
-                    double trajectoryY = (currentDistance * Math.cos(Math.toRadians(currentAngle)));
+                    // Initialize the camera
+                    VisionPole visionPole = new VisionPole();
+                    visionPole.init(hardwareMap);
 
-                    // WE CREATE THE APPROPRIATE TRAJECTORY TO GET TO THAT POINT
-                    Trajectory poleAim = drive.trajectoryBuilder(startPose)
-                            .lineToLinearHeading(new Pose2d(trajectoryX, trajectoryY, Math.toRadians(currentAngle)))
-                            .build();
-
-                    telemetry.addData("Width: ", visionpole.getWidth()); // width of rectangle reported by vision
-                    telemetry.addData("Midline: ", visionpole.getMid()); // distance from midline reported by vision
+                    // Update the telemetry with the latest data
+                    telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
                     telemetry.addLine();
-                    telemetry.addData("Trajectory X: ", trajectoryX); // the X we are feeding the trajectory
-                    telemetry.addData("Trajectory Y: ", trajectoryY); // the y we are feeding the trajectory
-                    telemetry.addData("Trajectory Angle: ", currentAngle); // the angle we are feeding the trajectory
+                    telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
+                    telemetry.addLine();
                     telemetry.update();
 
+                    // Get the angle that we need to turn in order for our camera to face the pole straight
+                    double angle = visionPole.getAngle();
 
-                    // WE DRIVE THAT TRAJECTORY
-                    drive.followTrajectoryAsync(poleAim);
+                    while (angle != 0) {
+                        // If the angle is not zero, it means we need to turn
+                        // Update the telemetry with the angle data
+                        telemetry.addData("angle we need to turn: ", angle);
+                        telemetry.addLine();
+                        telemetry.update();
+
+                        // Turn
+                        drive.turnAsync(Math.toRadians(angle));
+
+                        // Get the latest angle
+                        angle = visionPole.getAngle();
+                    }
+
+                    // Get the distance between camera and pole
+                    double distance = visionPole.getDistance();
+
+                    // Update the telemetry with the distance data
+                    telemetry.addData("distance we need to move forward: ", distance);
+                    telemetry.addLine();
+                    telemetry.update();
+
+                    // Move
+                    startPose = new Pose2d(0, 0, Math.toRadians(0));
+                    drive.setPoseEstimate(startPose);
+                    Trajectory Distance = drive.trajectoryBuilder(startPose)
+                            .forward(distance)
+                            .build();
+                    drive.followTrajectoryAsync(Distance);
 
                     // WHEN DONE WE CEDE CONTROL BACK TO THE DRIVER
                     if (!drive.isBusy()) {

@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.util.InterpLUT;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -31,6 +30,8 @@ public class VisionPole implements Subsystem {
     // Configurable Vision Variables
     public static int webcamHeight = 240;
     public static int webcamWidth = 320;
+    public static double FOV = 55.0;            // FOV of the webcam
+    public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
 
     // Current color it is detecting is yellow.
     public static double hueMin = 0;
@@ -39,36 +40,41 @@ public class VisionPole implements Subsystem {
     public static double saturationMax = 255;
     public static double valueMin = 140;
     public static double valueMax = 255;
-    private double midLine;
-    private double width;
+    private double distanceFromPoleCenterToImageCenter;
+    private double widthOfTheClosestPole;
 
     OpenCvCamera webcam;
     private VisionPipeline visionPipeline;
 
-    InterpLUT angle;
-    InterpLUT distance;
+    InterpLUT DISTANCE_FROM_CENTER;
+    InterpLUT DISTANCE_FROM_POLE;
 
     @Override
     public void init(HardwareMap map) {
-        // Set the Look Up Tables
-        angle = new InterpLUT();
-        distance = new InterpLUT();
+        // Set the Look Up Tables, convert pixels to inches
+        DISTANCE_FROM_CENTER = new InterpLUT();
+        DISTANCE_FROM_POLE = new InterpLUT();
 
-        angle.add(-webcamWidth / 2, 45);
-        angle.add(0, 0);
-        angle.add(webcamWidth / 2, -45);
-        angle.createLUT();
+        // Create a Look Up Table that converts distance to the center from pixels (image) to inches (real world)
+        DISTANCE_FROM_CENTER.add(-webcamWidth / 2.0, 45);   // if the pixel is at the left edge of the image, its 'real life' distance to the center is 45 inches?
+        DISTANCE_FROM_CENTER.add(0, 0);                     // if the pixel is at the center of the image, its 'real life' distance to the center is 0
+        DISTANCE_FROM_CENTER.add(webcamWidth / 2.0, -45);   // if the pixel is at the right edge of the image, its 'real life' distance to the center is -45 inches.
+        DISTANCE_FROM_CENTER.createLUT();
 
-        distance.add(5, 2);
-        distance.add(50, 0);
-        distance.add(100, -2);
-        distance.createLUT();
+        // Create a Look Up Table that converts width of the pole (pixels) to the distance between the pole and camera (inches)
+        DISTANCE_FROM_POLE.add(5, 2);   // if the width of the pole is 5 pixels, its actual distance to the camera is 2 inches?
+        DISTANCE_FROM_POLE.add(50, 0);  // if the width of the pole is 50 pixels, its actual distance to the camera in real life is 0
+        DISTANCE_FROM_POLE.add(100, -2);// if the width of the pole is 100 pixels, its actual distance to the camera in real life is -2 inches, meaning too close to be possible
+        DISTANCE_FROM_POLE.createLUT();
 
+        // Initialize new VisionPipeline instance
         visionPipeline = new VisionPipeline();
 
+        // Create a new Webcam instance and get the visionPipeline
         webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
 
+        // Open the camera and start processing the frames from the camera
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -103,7 +109,7 @@ public class VisionPole implements Subsystem {
         public Mat processFrame(Mat input) {
             input.copyTo(workingMatrix);
 
-            if (workingMatrix.empty()) {
+            if (workingMatrix.empty()) { // If the frame is empty, just return
                 return input;
             }
 
@@ -125,68 +131,62 @@ public class VisionPole implements Subsystem {
             Imgproc.findContours(workingMatrix, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
             int maxWidth = 0;
             Rect maxRect = new Rect();
+
+            // Enumerate each contour and find the one that's closest to the camera, assuming that is the closet pole
             for (MatOfPoint c : contours) {
-                MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
-                Rect rect = Imgproc.boundingRect(copy);
+                MatOfPoint2f contour = new MatOfPoint2f(c.toArray());
+                Rect boundingRect = Imgproc.boundingRect(contour);
 
                 // This finds the width of the contour
-                int w = rect.width;
-                if (w > maxWidth) {
-                    maxWidth = w;
-                    maxRect = rect;
+                if (boundingRect.width > maxWidth) {
+                    maxWidth = boundingRect.width;
+                    maxRect = boundingRect;
                 }
 
-                // the width of the rect is going to be stored in width:
-                int maxWidthX = maxRect.width;
-                width = maxWidthX;
-
-                // the center line of the rect is going to be stored in midLine:
-                double midLineX = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
-                midLine = midLineX;
-
+                // Release the temp objects
                 hierarchy.release();
                 c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
-                copy.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
+                contour.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
+
+            // Save the width of the closest pole to widthOfTheClosestPole in pixels
+            widthOfTheClosestPole = maxWidth;
+
+            // Calculate the distance from the center of the pole to the center of the image
+            // If the value is negative, it is at the left side of the center;
+            // otherwise, it is at the right side of the image center
+            distanceFromPoleCenterToImageCenter = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
 
             return workingMatrix;
         }
     }
 
-    public double getMid() {
-        return midLine;
-    }  // this is the midline position of the rectangle
-
-    public double getWidth() {
-        return width;
-    }  // this is the width of the rectangle
-
-    public VisionPipeline getVisionPipeline() {
-        return visionPipeline;
+    public double getDistanceFromPoleCenterToImageCenter() {
+        return distanceFromPoleCenterToImageCenter;
     }
 
+    public double getWidthOfTheClosestPole() {
+        return widthOfTheClosestPole;
+    }
+
+
     public double getAngle() {
-        return angle.get(Range.clip(midLine, -webcamWidth / 2 + 0.01, webcamWidth / 2 - 0.01));
+        // This is supposed to be the angle between the line from camera to pole, and the line from camera to center of the image
+        // If this value is negative, it means the robot needs to turn left, if the value is positive, it means the robot needs to turn right
+        return distanceFromPoleCenterToImageCenter * FOV / webcamWidth;
     }
 
     public double getDistance() {
-        return distance.get(Range.clip(width, 5.01, 99.99));
+        // This is supposed to be the distance between camera and pole *if and only if* when pole is at the center of the image
+        double angle = widthOfTheClosestPole * 0.5 * FOV / webcamWidth; // get the angle based on the width of the closest pole
+        return poleDiameter * 0.5 / Math.tan(angle);                    // get the actual distance between pole and the camera in inches
+    }
+
+    public VisionPipeline getVisionPipeline() {
+        return visionPipeline;
     }
 
 
 }
 
 
-//  Measure alignment (which is the difference between midline and the center of the camera screen)
-//  Measure width (which is how wide the rectangle is)
-//  Use 2 LUTs to convert those inputs (which are in pixels) into inches
-//        - Alignment will become DISTANCE_FROM_CENTER
-//        - Width will become DISTANCE_FROM_POLE
-//  Perform an ATAN calc to get ANGLE_TO_TURN
-//          I think it's: double ANGLE_TO_TURN = Math.atan(DISTANCE_FROM_CENTER/DISTANCE_FROM_POLE);
-//  Use pythagorean formula in which A is DISTANCE_FROM_CENTER, B is DISTANCE_FROM_POLE,
-//          and C is a new variable DISTANCE_TO_TRAVEL
-//  In PoleAimTele we will:
-//         .turn(ANGLE_TO_TURN)
-//         .forward(DISTANCE_TO_TRAVEL - OFFSET)
-//         where OFFSET is how far back from the pole we need to be to drop the cone
