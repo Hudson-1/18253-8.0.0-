@@ -99,32 +99,32 @@ public class TestPole extends LinearOpMode {
                     break;
 
                 case AUTO_ALIGN:
-                    drive.turn(initialTestAngle);
+                    drive.turn(Math.toRadians(angleIncrease));
                     midline1 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline2 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline3 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline4 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline5 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline6 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
                     midline7 = visionpole.getDistanceFromPoleCenterToImageCenter();
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline8 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline9 = visionpole.getDistanceFromPoleCenterToImageCenter();
                     sleep(1000);
-                    drive.turn (angleIncrease);
+                    drive.turn (Math.toRadians(angleIncrease));
                     midline10 = visionpole.getDistanceFromPoleCenterToImageCenter();
 
 
