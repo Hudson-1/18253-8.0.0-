@@ -32,6 +32,7 @@ public class VisionPole implements Subsystem {
     public static int webcamWidth = 320;
     public static double FOV = 55.0;            // FOV of the webcam
     public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
+    public static double offset = 0.1;          // offset from pole surface to robot
 
     // Current color it is detecting is yellow.
     public static double hueMin = 0;
@@ -160,6 +161,10 @@ public class VisionPole implements Subsystem {
             return workingMatrix;
         }
     }
+    private double getOffset() {
+        return (poleDiameter * 0.5 + offset);
+    }
+
 
     public double getDistanceFromPoleCenterToImageCenter() {
         return distanceFromPoleCenterToImageCenter;
@@ -179,7 +184,7 @@ public class VisionPole implements Subsystem {
     public double getDistance() {
         // This is supposed to be the distance between camera and pole *if and only if* when pole is at the center of the image
         double angle = widthOfTheClosestPole * 0.5 * FOV / webcamWidth; // get the angle based on the width of the closest pole
-        return poleDiameter * 0.5 / Math.tan(angle);                    // get the actual distance between pole and the camera in inches
+        return ((poleDiameter * 0.5 / Math.tan(angle)) - getOffset());                    // get the actual distance between pole and the camera in inches
     }
 
     public VisionPipeline getVisionPipeline() {
