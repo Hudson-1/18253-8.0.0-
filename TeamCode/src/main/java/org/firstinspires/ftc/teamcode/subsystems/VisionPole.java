@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -43,6 +44,7 @@ public class VisionPole implements Subsystem {
     public static double valueMax = 255;
     private double distanceFromPoleCenterToImageCenter;
     private double widthOfTheClosestPole;
+    private int numberOfContours;
 
     OpenCvCamera webcam;
     private VisionPipeline visionPipeline;
@@ -133,6 +135,8 @@ public class VisionPole implements Subsystem {
             int maxWidth = 0;
             Rect maxRect = new Rect();
 
+            numberOfContours = contours.size();
+
             // Enumerate each contour and find the one that's closest to the camera, assuming that is the closet pole
             for (MatOfPoint c : contours) {
                 MatOfPoint2f contour = new MatOfPoint2f(c.toArray());
@@ -190,6 +194,8 @@ public class VisionPole implements Subsystem {
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
     }
+
+    public int getNumberOfContours() { return numberOfContours; }
 
 
 }

@@ -1,5 +1,17 @@
 package org.firstinspires.ftc.teamcode.tele;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.Lift;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -17,6 +29,7 @@ public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
     static double range = 2.0; //number must be positive
+    private int numberOfTimesItIsGettingCalled = 0;
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
     public enum states {
@@ -38,6 +51,8 @@ public class PoleAimTele extends LinearOpMode {
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+        int timeOfItIsGettingCalled = 0;
 
         Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, false);
 
@@ -90,7 +105,8 @@ public class PoleAimTele extends LinearOpMode {
                     break;
 
                 case AUTO_ALIGN:
-
+                    drive.turnAsync(Math.toRadians(-45));
+                    numberOfTimesItIsGettingCalled++;
                     /*
                     After calculating the angle we need to turn and the distance we need to drive:
                         - We start by only turning the angle.
@@ -110,29 +126,55 @@ public class PoleAimTele extends LinearOpMode {
 
 
                     // Update the telemetry with the latest data
+                    telemetry.addData("number of times it is getting called: ", numberOfTimesItIsGettingCalled);
                     telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
                     telemetry.addLine();
                     telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
                     telemetry.addLine();
+                    telemetry.addData("the number of Contours: ", visionPole.getNumberOfContours());
                     telemetry.update();
 
                     // Get the angle that we need to turn in order for our camera to face the pole straight
+
                     double angle = visionPole.getAngle();
 
+                    telemetry.addData("angel we need to turn: ", angle);
+
+                    /*
+                    int numberOfTurns = 0;
+
                     while (!IsWithinRange(angle)) {
+
                         // If the angle is not zero, it means we need to turn
                         // Update the telemetry with the angle data
                         telemetry.addData("angle we need to turn: ", angle);
                         telemetry.addLine();
-                        telemetry.update();
+                        // telemetry.update();
 
                         // Turn
-                        drive.turnAsync(Math.toRadians(angle));
+                        drive.turnAsync(Math.toRadians(-45));
+
+
+
+
+
+
+                        telemetry.addData("we turned: ", numberOfTurns);
+                        numberOfTurns++;
+
+                        telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
+                        telemetry.addLine();
+                        telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
+                        telemetry.addLine();
+
+                        if (numberOfTurns > 10) {
+                            break;
+                        }
 
                         // Get the latest angle
                         angle = visionPole.getAngle();
                     }
-
+*/
                     // Get the distance between camera and pole
                     double distance = visionPole.getDistance();
 
@@ -141,6 +183,7 @@ public class PoleAimTele extends LinearOpMode {
                     telemetry.addLine();
                     telemetry.update();
 
+                    /*
                     // Move
                     startPose = new Pose2d(0, 0, Math.toRadians(0));
                     drive.setPoseEstimate(startPose);
@@ -148,7 +191,7 @@ public class PoleAimTele extends LinearOpMode {
                             .forward(distance)
                             .build();
                     drive.followTrajectoryAsync(Distance);
-
+*/
                     // WHEN DONE WE CEDE CONTROL BACK TO THE DRIVER
                     if (!drive.isBusy()) {
                         currentMode = states.DRIVER_CONTROL;
