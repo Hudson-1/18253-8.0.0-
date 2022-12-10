@@ -52,6 +52,9 @@ public class PoleAimTele extends LinearOpMode {
 
         waitForStart();
 
+        VisionPole visionPole = new VisionPole();
+        visionPole.init(hardwareMap);
+
         while (opModeIsActive()) {
             robot.update();
             dashboardTelemetry.update();
@@ -104,8 +107,7 @@ public class PoleAimTele extends LinearOpMode {
                     drive.setPoseEstimate(startPose);
 
                     // Initialize the camera
-                    VisionPole visionPole = new VisionPole();
-                    visionPole.init(hardwareMap);
+
 
                     // Update the telemetry with the latest data
                     telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
