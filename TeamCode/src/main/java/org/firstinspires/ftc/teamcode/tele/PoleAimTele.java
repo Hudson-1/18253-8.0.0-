@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
+    static double range = 2.0; //number must be positive
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
     public enum states {
@@ -24,6 +25,13 @@ public class PoleAimTele extends LinearOpMode {
     }
 
     private states currentMode = states.DRIVER_CONTROL;
+
+    private boolean IsWithinRange(double angle) {
+        if ((angle > (0-range)) && (angle < range)) {
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -109,7 +117,7 @@ public class PoleAimTele extends LinearOpMode {
                     // Get the angle that we need to turn in order for our camera to face the pole straight
                     double angle = visionPole.getAngle();
 
-                    while (angle != 0) {
+                    while (!IsWithinRange(angle)) {
                         // If the angle is not zero, it means we need to turn
                         // Update the telemetry with the angle data
                         telemetry.addData("angle we need to turn: ", angle);
