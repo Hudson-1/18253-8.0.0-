@@ -56,9 +56,8 @@ public class PoleAimTele extends LinearOpMode {
 
         Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, false);
 
-
         // Initialize custom cancelable SampleMecanumDrive class
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        SampleMecanumDrive drive = robot.getDriveClass().getDrive();
 
         // We want to turn off velocity control for teleop
         // Velocity control per wheel is not necessary outside of motion profiled auto
@@ -66,6 +65,7 @@ public class PoleAimTele extends LinearOpMode {
 
 
         waitForStart();
+        if (isStopRequested()) return;
 
         VisionPole visionPole = new VisionPole();
         visionPole.init(hardwareMap);
@@ -105,8 +105,8 @@ public class PoleAimTele extends LinearOpMode {
                     break;
 
                 case AUTO_ALIGN:
-                    drive.turnAsync(Math.toRadians(-45));
-                    numberOfTimesItIsGettingCalled++;
+
+                 //   numberOfTimesItIsGettingCalled++;
                     /*
                     After calculating the angle we need to turn and the distance we need to drive:
                         - We start by only turning the angle.
@@ -119,12 +119,6 @@ public class PoleAimTele extends LinearOpMode {
                        But we could always run the loop one more time if we find it’s still not accurate enough.
                      */
 
-                    Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
-                    drive.setPoseEstimate(startPose);
-
-                    // Initialize the camera
-
-
                     // Update the telemetry with the latest data
                     telemetry.addData("number of times it is getting called: ", numberOfTimesItIsGettingCalled);
                     telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
@@ -136,7 +130,38 @@ public class PoleAimTele extends LinearOpMode {
 
                     // Get the angle that we need to turn in order for our camera to face the pole straight
 
+
+                    // ===============SOME SUCCESS!!!!==============
+
+                    // THIS BIT OF CODE WORKS -- IT MAKES THE BOT AUTOMATICALLY TURN 45 AND MOVE 2 INCHES
+                    // NOTES ARE BELOW IT
+
                     double angle = visionPole.getAngle();
+                    drive.turn(Math.toRadians(45));
+
+                    Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
+                    drive.setPoseEstimate(startPose);
+                    TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
+                            .forward(-2) // note the negative to make it go forwards
+                            .build();
+                    drive.followTrajectorySequence(Distance);
+                    lastPress = true;
+                    currentMode = states.DRIVER_CONTROL;
+
+                    // Tried feeding it Angle from VisionPole but it wasn't accurate. Sometimes it turned the wrong way
+                    // It uses turn and not turnAsync, and drive and not driveAsync. Doing it async made the bot jittery. Why?
+                    // Maybe the Vision pipeline is slowing it down? It's constantly processing images and calculating?
+                    //      After it's fed us the data we need we could shut it down.
+                    // For the distance -- Road Runner is set with the intake side as the front of the bot, so to go what we think
+                    //      is forward, the bot is going backwards. We need to be moving -distance. (There is also a way to tell
+                    //      Road Runner to reverse everything, but that might not be any easier.)
+                    // We added lastPress = true because without that, when we return to Driver Control it thought the button
+                    //      to send us back to Auto is still pressed, and we would up caught in a loop
+
+                    // =============================================
+
+
+
 
                     telemetry.addData("angel we need to turn: ", angle);
 
@@ -153,11 +178,6 @@ public class PoleAimTele extends LinearOpMode {
 
                         // Turn
                         drive.turnAsync(Math.toRadians(-45));
-
-
-
-
-
 
                         telemetry.addData("we turned: ", numberOfTurns);
                         numberOfTurns++;
@@ -192,10 +212,11 @@ public class PoleAimTele extends LinearOpMode {
                             .build();
                     drive.followTrajectoryAsync(Distance);
 */
-                    // WHEN DONE WE CEDE CONTROL BACK TO THE DRIVER
+ /*                   // WHEN DONE WE CEDE CONTROL BACK TO THE DRIVER
                     if (!drive.isBusy()) {
                         currentMode = states.DRIVER_CONTROL;
                     }
+   */
                     break;
             }
         }
