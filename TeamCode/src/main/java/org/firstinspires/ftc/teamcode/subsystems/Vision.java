@@ -67,7 +67,7 @@ public class Vision implements Subsystem {
          */
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened() { webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.SIDEWAYS_LEFT); }
+            public void onOpened() { webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPRIGHT); }
             @Override public void onError(int errorCode) { }
         });
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
