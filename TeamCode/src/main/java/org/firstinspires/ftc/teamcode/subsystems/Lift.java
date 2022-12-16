@@ -37,19 +37,19 @@ public class Lift implements Subsystem {
     public static double TICKS_PER_REV = MOTOR_RATIO * 28.0;
     public static double GEAR_RATIO = 1;
 
-    public static double kP = 0.5;
+    public static double kP = 0.12;
     public static double kI = 0;
     public static double kD = 0;
-    public static double kF = 0;
+    public static double kF = 0.14;
     private double target;
 
-    public static double DECENT_POWER_MAX = 0.2;
+    public static double DECENT_POWER_MAX = 0.5;
 
     // this is the time we wait for the claw to close before moving.
     public static double WAIT_FOR_CLAW_MILLISECONDS = 200;
     // when putting back in, we wait this amount of time after we start moving the v4b
-    public static double WAIT_FOR_V4B_IN = 800;
-    public static double WAIT_FOR_CLAW_OPEN = 600;
+    public static double WAIT_FOR_V4B_IN = 500;
+    public static double WAIT_FOR_CLAW_OPEN = 500;
     // change claw
 
     public static double clawOpen = 0.3;
@@ -57,15 +57,15 @@ public class Lift implements Subsystem {
 
     // change v4b
 
-    public static double rest = .34;
-    public static double front = 0;
-    public static double back = 0.95;
+    public static double rest = .52;
+    public static double front = .8;
+    public static double back = 0.02;
     public static double stack = .55;
-    public static double front5 = .11;
-    public static double front4 = .15;
-    public static double front3 = .19;
-    public static double front2 = .27;
-    public static double front1 = .34;
+    public static double front5 = .7;
+    public static double front4 = .65;
+    public static double front3 = .61;
+    public static double front2 = .58;
+    public static double front1 = .52;
     public static double intakein = .4;
     public static double intakeout = .1;
     boolean doResetClaw = true;
