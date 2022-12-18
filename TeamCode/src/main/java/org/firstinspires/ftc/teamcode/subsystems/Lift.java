@@ -28,8 +28,8 @@ public class Lift implements Subsystem {
     public static double REST_slides = 0.0;
     public static double CHECK_slides = 4.0;
     public static double LOW_slides = 7.5;
-    public static double MID_slides = 16.5;
-    public static double HIGH_slides = 26.5;
+    public static double MID_slides = 18;
+    public static double HIGH_slides = 28;
     public static double STACK_slides = 9;
 
     public static double SPOOL_SIZE_IN = 0.5; // radius in inches
@@ -52,22 +52,22 @@ public class Lift implements Subsystem {
     public static double WAIT_FOR_CLAW_OPEN = 500;
     // change claw
 
-    public static double clawOpen = 0.3;
-    public static double clawClose = 0;
+    public static double clawOpen = 0.65;
+    public static double clawClose = .4;
 
     // change v4b
 
-    public static double rest = .52;
-    public static double front = .8;
-    public static double back = 0.02;
-    public static double stack = .55;
-    public static double front5 = .7;
-    public static double front4 = .65;
-    public static double front3 = .61;
-    public static double front2 = .58;
-    public static double front1 = .52;
+    public static double rest = .86;
+    public static double front = 8;
+    public static double back = 0.24;
+    public static double stack = .75;
+    public static double front5 = .95;
+    public static double front4 = .9;
+    public static double front3 = .85;
+    public static double front2 = .8;
+    public static double front1 = .85;
     public static double intakein = .4;
-    public static double intakeout = .1;
+    public static double intakeout = .07;
     boolean doResetClaw = true;
 
     Servo v4bL;
@@ -262,7 +262,7 @@ public class Lift implements Subsystem {
 
                 if(g.dpad_up || g.dpad_down) {
                     state = States.STACK_5;
-                    claw.setPosition(clawClose); // backwards
+                    claw.setPosition(clawOpen); // backwards nvm
                     doResetClaw = true;
                 }
                 break;
@@ -315,11 +315,11 @@ public class Lift implements Subsystem {
                 back();
 
                 setLiftPosition(LiftState.LOW, 5);
-                release();
+                grab();
 
                 if(g.left_bumper) {
                     timer.reset();
-                    grab(); // opposite day
+                    release(); // opposite day
                     state = States.REST;
                 }
                 break;
@@ -327,11 +327,11 @@ public class Lift implements Subsystem {
                 back();
 
                 setLiftPosition(LiftState.MID, 5);
-                release();
+                grab();
 
                 if(g.left_bumper) {
                     timer.reset();
-                    grab(); // opposite day
+                    release(); // opposite day
                     state = States.REST;
                 }
                 break;
@@ -339,10 +339,10 @@ public class Lift implements Subsystem {
                 back();
 
                 setLiftPosition(LiftState.HIGH, 5);
-                release(); // reversed
+                grab(); // reversed
                 if(g.left_bumper) {
                     timer.reset();
-                    grab(); // opposite day
+                    release(); // opposite day
                     state = States.REST;
                 }
                 break;
@@ -354,12 +354,13 @@ public class Lift implements Subsystem {
             case STACK_5:
                 if (upDpadPress.press()) {
                     state = nextInStack(state);
+                    intakeout();
                 }
                 if (downDpadPress.press()) {
                     state = previousInStack(state);
                 }
                 if (g.dpad_left) {
-                    claw.setPosition(clawOpen);
+                    claw.setPosition(clawClose);
                 }
                 if (g.dpad_right) {
                     state = States.STACK_SAFE;
@@ -373,19 +374,19 @@ public class Lift implements Subsystem {
                 stack();
                 if(g.a) {
                     state = States.LOW_ALTERNATIVE;
-                    grab();
+                    release();
                     timer.reset();
                 }
 
                 if(g.b) {
                     state = States.MID_ALTERNATIVE;
-                    grab();
+                    release();
                     timer.reset();
                 }
 
                 if(g.right_bumper) {
                     state = States.HIGH_ALTERNATIVE;
-                    grab();
+                    release();
                     timer.reset();
                 }
                 setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));

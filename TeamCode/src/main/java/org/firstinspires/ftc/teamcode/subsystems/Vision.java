@@ -67,7 +67,7 @@ public class Vision implements Subsystem {
          */
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened() { webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPRIGHT); }
+            public void onOpened() { webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.SIDEWAYS_LEFT); }
             @Override public void onError(int errorCode) { }
         });
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
@@ -124,9 +124,9 @@ public class Vision implements Subsystem {
 
     public Detection_States returnVisionState() {
 
-        if (getColorNum() > .3) {
+        if (getColorNum() > .15) {
             return Detection_States.THREE;
-        } else if (getColorNum() < 0.01) {
+        } else if (getColorNum() < 0.001) {
             return Detection_States.ONE;
         } else {
             return Detection_States.TWO;

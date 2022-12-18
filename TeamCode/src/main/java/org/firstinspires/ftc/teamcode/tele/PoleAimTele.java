@@ -23,7 +23,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
-
+@Disabled
 @TeleOp
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;

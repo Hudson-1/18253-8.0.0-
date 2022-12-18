@@ -38,9 +38,9 @@ public class AutoRight extends LinearOpMode {
             telemetry.update();
         }
 
-        double parkingOption3 = -26; // TODO edit this
-        double parkingOption2 = -1; // TODO edit this
-        double parkingOption1 = 24; // TODO edit this
+        double parkingOption3 = -30; // TODO edit this
+        double parkingOption2 = -6; // TODO edit this
+        double parkingOption1 = 22; // TODO edit this
 
         double chosenTarget;  // use this later in your parking routine
         switch (target) {
@@ -67,70 +67,71 @@ public class AutoRight extends LinearOpMode {
                 .splineTo(new Vector2d(36, -36), Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
                 .UNSTABLE_addTemporalMarkerOffset(-.9, lift::back)
-                .splineTo(new Vector2d(27, -7), Math.toRadians(140))
+                .splineTo(new Vector2d(30, -10), Math.toRadians(120))
+                .waitSeconds(.5)
                 .UNSTABLE_addTemporalMarkerOffset(0,lift::release)
                 //deposit
-                .waitSeconds(.1)
                // .waitSeconds(.15)
-                .setReversed(false)
-                .UNSTABLE_addTemporalMarkerOffset( 0.6, lift::front5)
-                .UNSTABLE_addTemporalMarkerOffset(0.10, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
+               /* .setReversed(false)
+                .UNSTABLE_addTemporalMarkerOffset( .55, lift::front5)
+                .UNSTABLE_addTemporalMarkerOffset(.75, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                 .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                 .splineTo(new Vector2d(55, -17), Math.toRadians(0))
-
                 .setVelConstraint(new MecanumVelocityConstraint(20, 12))
-                .forward(6)
+                .forward(7)
                 .resetVelConstraint()
                 .addTemporalMarker(lift::grab)
-                .waitSeconds(.3)
+                .waitSeconds(.2)
                 .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
                 .waitSeconds(.1)
                 .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                .splineTo(new Vector2d(30, -7), Math.toRadians(125))
+                .splineTo(new Vector2d(28, -7), Math.toRadians(130))
                // .splineTo(new Vector2d(30, -10), Math.toRadians(105))
-                .UNSTABLE_addTemporalMarkerOffset(.1,lift::release)
-                //.waitSeconds(.4)
+                .waitSeconds(.5)
+                .UNSTABLE_addTemporalMarkerOffset(0,lift::release)
                 // end of +1
                 .setReversed(false)
-                .UNSTABLE_addTemporalMarkerOffset(0.2, lift::front4)
-                .UNSTABLE_addTemporalMarkerOffset(0.6, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
+                .UNSTABLE_addTemporalMarkerOffset(0.55, lift::front4)
+                .UNSTABLE_addTemporalMarkerOffset(0.75, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                 .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                 .splineTo(new Vector2d(55, -17), Math.toRadians(0))
                 .setVelConstraint(new MecanumVelocityConstraint(20, 12))
                 .forward(9)
                 .resetVelConstraint()
                 .addTemporalMarker(lift::grab)
-                .waitSeconds(.3)
+                .waitSeconds(.2)
                 .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
                 .waitSeconds(.1)
                 .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                .splineTo(new Vector2d(30, -7), Math.toRadians(120))
-                .waitSeconds(.2)
-                .addTemporalMarker(lift::release)
-                .waitSeconds(.4)
+                .splineTo(new Vector2d(28, -7), Math.toRadians(130))
+                .waitSeconds(.5)
+                .UNSTABLE_addTemporalMarkerOffset(0,lift::release)
+           //     .waitSeconds(.5)
                 // end of +2
                 .setReversed(false)
-                .UNSTABLE_addTemporalMarkerOffset(0.5, lift::front3)
-                .UNSTABLE_addTemporalMarkerOffset(0.6, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
+                .UNSTABLE_addTemporalMarkerOffset(0.55, lift::front3)
+                .UNSTABLE_addTemporalMarkerOffset(0.75, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                 .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                 .splineTo(new Vector2d(55, -17), Math.toRadians(0))
                 .setVelConstraint(new MecanumVelocityConstraint(20, 12))
-                .forward(11)
+                .forward(12)
                 .resetVelConstraint()
                 .addTemporalMarker(lift::grab)
-                .waitSeconds(.3)
+                .waitSeconds(.2)
                 .addTemporalMarker(() -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
                 .waitSeconds(.1)
                 .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                .splineTo(new Vector2d(30, -7), Math.toRadians(120))
-                .waitSeconds(.2)
-                .addTemporalMarker(lift::release)
-                .waitSeconds(.4)
+                .splineTo(new Vector2d(28, -7), Math.toRadians(130))
+                .waitSeconds(.5)
+                .UNSTABLE_addTemporalMarkerOffset(0,lift::release)*/
+                //adding going down for park
+
+               // .waitSeconds(.4)
                 // end of +3
-                .setReversed(false)
+           /*     .setReversed(false)
                 .UNSTABLE_addTemporalMarkerOffset(0.5, lift::front2)
                 .UNSTABLE_addTemporalMarkerOffset(0.6, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                 .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
@@ -166,9 +167,13 @@ public class AutoRight extends LinearOpMode {
                 .splineTo(new Vector2d(30, -7), Math.toRadians(120))
                 .waitSeconds(.2)
                 .addTemporalMarker(lift::release)
-                .waitSeconds(.4)
+                .waitSeconds(.4)*/
                 // end of +5
+                .forward(9)
                 .turn(Math.toRadians(-120))
+                .UNSTABLE_addTemporalMarkerOffset(0, lift::intakein)
+                .UNSTABLE_addTemporalMarkerOffset(0.55, lift::front1)
+                .UNSTABLE_addTemporalMarkerOffset(0.75, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                 .forward(chosenTarget)
 //end
 
