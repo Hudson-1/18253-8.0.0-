@@ -119,7 +119,7 @@ public class VisionPole implements Subsystem {
             // Here we set the filters and manipulate the image:
 
             // These filter out everything but yellow, and turn it into black and white
-            workingMatrix = input.submat(100, 240, 60, 320); // added this if we want to crop the image
+            // workingMatrix = input.submat(100, 240, 60, 320); // no need to crop the image because we need the whole image and FOV to calculate
             Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
             Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
             Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
