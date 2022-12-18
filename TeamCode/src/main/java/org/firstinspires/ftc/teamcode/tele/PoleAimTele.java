@@ -23,13 +23,15 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
-@Disabled
+import org.openftc.easyopencv.OpenCvPipeline;
+
 @TeleOp
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
-    static double range = 2.0; //number must be positive
-    private int numberOfTimesItIsGettingCalled = 0;
+    static double angleRange = 5.0;     // smallest angle range that we can turn
+    static double distanceRange = 3.0;  // smallest distance range that we can move
+    static int timer = 500;             // milliseconds that we sleep for
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
     public enum states {
@@ -39,8 +41,15 @@ public class PoleAimTele extends LinearOpMode {
 
     private states currentMode = states.DRIVER_CONTROL;
 
-    private boolean IsWithinRange(double angle) {
-        if ((angle > (0-range)) && (angle < range)) {
+    private boolean IsWithinAngleRange(double angle) {
+        if ((angle > (0-angleRange)) && (angle < angleRange)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean IsWithinDistanceRange(double distance) {
+        if ((distance > (0-distanceRange)) && (distance < distanceRange)) {
             return true;
         }
         return false;
@@ -52,8 +61,6 @@ public class PoleAimTele extends LinearOpMode {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-        int timeOfItIsGettingCalled = 0;
-
         Robot robot = new Robot(gamepad1, gamepad2, hardwareMap, false);
 
         // Initialize custom cancelable SampleMecanumDrive class
@@ -62,7 +69,6 @@ public class PoleAimTele extends LinearOpMode {
         // We want to turn off velocity control for teleop
         // Velocity control per wheel is not necessary outside of motion profiled auto
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
 
         waitForStart();
         if (isStopRequested()) return;
@@ -106,117 +112,51 @@ public class PoleAimTele extends LinearOpMode {
 
                 case AUTO_ALIGN:
 
-                 //   numberOfTimesItIsGettingCalled++;
-                    /*
-                    After calculating the angle we need to turn and the distance we need to drive:
-                        - We start by only turning the angle.
-                        - Then we have a loop:
-                        Update the camera image and reanalyze it.
-                            If the midline of the pole is not the same as the center of the screen (plus or minus a small amount) we repeat the loop.
-                            If the midline is the same as the center if the screen (plus or minus), we move on.
-                        - Then we drive forward the specified distance.
-                       At this point we SHOULD be where we need to be.
-                       But we could always run the loop one more time if we find it’s still not accurate enough.
-                     */
+                    boolean actions = false;
 
-                    // Update the telemetry with the latest data
-                    telemetry.addData("number of times it is getting called: ", numberOfTimesItIsGettingCalled);
-                    telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
-                    telemetry.addLine();
-                    telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
-                    telemetry.addLine();
-                    telemetry.addData("the number of Contours: ", visionPole.getNumberOfContours());
-                    telemetry.update();
+                    // Get the angle that we need to turn
+                    double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
 
-                    // Get the angle that we need to turn in order for our camera to face the pole straight
+                    if (!IsWithinAngleRange(angle)) {
+                        if (angle > 0) {
+                            telemetry.addData("turn left: ", angle);
+                        } else if (angle < 0) {
+                            telemetry.addData("turn right: ", -angle);
+                        }
+                        drive.turn(Math.toRadians(angle));
+                        actions = true;
 
+                    } else {
+                        telemetry.addData("angle falls within range: ", angle);
 
-                    // ===============SOME SUCCESS!!!!==============
+                        // Get the distance between camera and pole using perceived focal length
+                        double distance = visionPole.getDistanceFromFocalLength();
 
-                    // THIS BIT OF CODE WORKS -- IT MAKES THE BOT AUTOMATICALLY TURN 45 AND MOVE 2 INCHES
-                    // NOTES ARE BELOW IT
+                        if (!IsWithinDistanceRange(distance)) {
+                            // Update the telemetry with the distance data
+                            telemetry.addData("distance we need to move forward: ", distance);
 
-                    double angle = visionPole.getAngle();
-                    drive.turn(Math.toRadians(45));
+                            Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
+                            drive.setPoseEstimate(startPose);
+                            TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
+                                    .forward(-distance) // note the negative to make it go forwards
+                                    .build();
+                            drive.followTrajectorySequence(Distance);
 
-                    Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
-                    drive.setPoseEstimate(startPose);
-                    TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
-                            .forward(-2) // note the negative to make it go forwards
-                            .build();
-                    drive.followTrajectorySequence(Distance);
-                    lastPress = true;
-                    currentMode = states.DRIVER_CONTROL;
-
-                    // Tried feeding it Angle from VisionPole but it wasn't accurate. Sometimes it turned the wrong way
-                    // It uses turn and not turnAsync, and drive and not driveAsync. Doing it async made the bot jittery. Why?
-                    // Maybe the Vision pipeline is slowing it down? It's constantly processing images and calculating?
-                    //      After it's fed us the data we need we could shut it down.
-                    // For the distance -- Road Runner is set with the intake side as the front of the bot, so to go what we think
-                    //      is forward, the bot is going backwards. We need to be moving -distance. (There is also a way to tell
-                    //      Road Runner to reverse everything, but that might not be any easier.)
-                    // We added lastPress = true because without that, when we return to Driver Control it thought the button
-                    //      to send us back to Auto is still pressed, and we would up caught in a loop
-
-                    // =============================================
-
-
-
-
-                    telemetry.addData("angel we need to turn: ", angle);
-
-                    /*
-                    int numberOfTurns = 0;
-
-                    while (!IsWithinRange(angle)) {
-
-                        // If the angle is not zero, it means we need to turn
-                        // Update the telemetry with the angle data
-                        telemetry.addData("angle we need to turn: ", angle);
-                        telemetry.addLine();
-                        // telemetry.update();
-
-                        // Turn
-                        drive.turnAsync(Math.toRadians(-45));
-
-                        telemetry.addData("we turned: ", numberOfTurns);
-                        numberOfTurns++;
-
-                        telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
-                        telemetry.addLine();
-                        telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
-                        telemetry.addLine();
-
-                        if (numberOfTurns > 10) {
-                            break;
+                            actions = true;
                         }
 
-                        // Get the latest angle
-                        angle = visionPole.getAngle();
                     }
-*/
-                    // Get the distance between camera and pole
-                    double distance = visionPole.getDistance();
 
-                    // Update the telemetry with the distance data
-                    telemetry.addData("distance we need to move forward: ", distance);
-                    telemetry.addLine();
                     telemetry.update();
+                    lastPress = true;
 
-                    /*
-                    // Move
-                    startPose = new Pose2d(0, 0, Math.toRadians(0));
-                    drive.setPoseEstimate(startPose);
-                    Trajectory Distance = drive.trajectoryBuilder(startPose)
-                            .forward(distance)
-                            .build();
-                    drive.followTrajectoryAsync(Distance);
-*/
- /*                   // WHEN DONE WE CEDE CONTROL BACK TO THE DRIVER
-                    if (!drive.isBusy()) {
+                    if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                         currentMode = states.DRIVER_CONTROL;
+                    } else {            // Otherwise, sleep to give other threads a chance to run
+                        sleep(timer);
                     }
-   */
+
                     break;
             }
         }

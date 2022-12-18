@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.arcrobotics.ftclib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -34,6 +33,8 @@ public class VisionPole implements Subsystem {
     public static double FOV = 55.0;            // FOV of the webcam
     public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
     public static double offset = 0.1;          // offset from pole surface to robot
+    public static double knownDistance = 12.0;  // Known distance to estimate the focal length
+    public static double knownImageWidth = 26.0; // pole width in the image
 
     // Current color it is detecting is yellow.
     public static double hueMin = 0;
@@ -49,26 +50,8 @@ public class VisionPole implements Subsystem {
     OpenCvCamera webcam;
     private VisionPipeline visionPipeline;
 
-    InterpLUT DISTANCE_FROM_CENTER;
-    InterpLUT DISTANCE_FROM_POLE;
-
     @Override
     public void init(HardwareMap map) {
-        // Set the Look Up Tables, convert pixels to inches
-        DISTANCE_FROM_CENTER = new InterpLUT();
-        DISTANCE_FROM_POLE = new InterpLUT();
-
-        // Create a Look Up Table that converts distance to the center from pixels (image) to inches (real world)
-        DISTANCE_FROM_CENTER.add(-webcamWidth / 2.0, 45);   // if the pixel is at the left edge of the image, its 'real life' distance to the center is 45 inches?
-        DISTANCE_FROM_CENTER.add(0, 0);                     // if the pixel is at the center of the image, its 'real life' distance to the center is 0
-        DISTANCE_FROM_CENTER.add(webcamWidth / 2.0, -45);   // if the pixel is at the right edge of the image, its 'real life' distance to the center is -45 inches.
-        DISTANCE_FROM_CENTER.createLUT();
-
-        // Create a Look Up Table that converts width of the pole (pixels) to the distance between the pole and camera (inches)
-        DISTANCE_FROM_POLE.add(5, 2);   // if the width of the pole is 5 pixels, its actual distance to the camera is 2 inches?
-        DISTANCE_FROM_POLE.add(50, 0);  // if the width of the pole is 50 pixels, its actual distance to the camera in real life is 0
-        DISTANCE_FROM_POLE.add(100, -2);// if the width of the pole is 100 pixels, its actual distance to the camera in real life is -2 inches, meaning too close to be possible
-        DISTANCE_FROM_POLE.createLUT();
 
         // Initialize new VisionPipeline instance
         visionPipeline = new VisionPipeline();
@@ -88,6 +71,7 @@ public class VisionPole implements Subsystem {
             public void onError(int errorCode) {
             }
         });
+
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
     }
 
@@ -119,7 +103,6 @@ public class VisionPole implements Subsystem {
             // Here we set the filters and manipulate the image:
 
             // These filter out everything but yellow, and turn it into black and white
-            workingMatrix = input.submat(100, 240, 60, 320); // added this if we want to crop the image
             Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
             Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
             Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
@@ -149,10 +132,12 @@ public class VisionPole implements Subsystem {
                 }
 
                 // Release the temp objects
-                hierarchy.release();
                 c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
                 contour.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
+
+            // Release the temp objects
+            hierarchy.release();
 
             // Save the width of the closest pole to widthOfTheClosestPole in pixels
             widthOfTheClosestPole = maxWidth;
@@ -165,6 +150,7 @@ public class VisionPole implements Subsystem {
             return workingMatrix;
         }
     }
+
     private double getOffset() {
         return (poleDiameter * 0.5 + offset);
     }
@@ -185,18 +171,17 @@ public class VisionPole implements Subsystem {
         return distanceFromPoleCenterToImageCenter * FOV / webcamWidth;
     }
 
-    public double getDistance() {
-        // This is supposed to be the distance between camera and pole *if and only if* when pole is at the center of the image
-        double angle = widthOfTheClosestPole * 0.5 * FOV / webcamWidth; // get the angle based on the width of the closest pole
-        return ((poleDiameter * 0.5 / Math.tan(angle)) - getOffset());                    // get the actual distance between pole and the camera in inches
-    }
-
     public VisionPipeline getVisionPipeline() {
         return visionPipeline;
     }
 
-    public int getNumberOfContours() { return numberOfContours; }
+    private double getFocalLength(double measuredDistance, double realWidth, double imageWidth) {
+        return imageWidth * measuredDistance / realWidth;
+    }
 
+    public double getDistanceFromFocalLength() {
+        return (poleDiameter * getFocalLength(knownDistance, poleDiameter, knownImageWidth)) / widthOfTheClosestPole;
+    }
 
 }
 
