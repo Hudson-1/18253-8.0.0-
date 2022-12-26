@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
-    static double range = 2.0; //number must be positive
+    static double range = 3.0; //number must be positive
     private int numberOfTimesItIsGettingCalled = 0;
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
@@ -66,9 +66,6 @@ public class PoleAimTele extends LinearOpMode {
 
         waitForStart();
         if (isStopRequested()) return;
-
-        VisionPole visionPole = new VisionPole();
-        visionPole.init(hardwareMap);
 
         while (opModeIsActive()) {
             robot.update();
@@ -119,32 +116,30 @@ public class PoleAimTele extends LinearOpMode {
                        But we could always run the loop one more time if we find it’s still not accurate enough.
                      */
 
+                    VisionPole visionPole = new VisionPole();
+                    visionPole.init(hardwareMap);
+
+
                     // Update the telemetry with the latest data
                     telemetry.addData("number of times it is getting called: ", numberOfTimesItIsGettingCalled);
                     telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
-                    telemetry.addLine();
                     telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
-                    telemetry.addLine();
                     telemetry.addData("the number of Contours: ", visionPole.getNumberOfContours());
-                    telemetry.update();
 
                     // Get the angle that we need to turn in order for our camera to face the pole straight
+                    double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
 
+                    if (IsWithinRange(angle)) {
+                        telemetry.addData("angle falls within the range: ", angle);
+                    } else {
+                        if (angle > 0) {
+                            telemetry.addData("turn left: ", angle);
+                        } else if (angle < 0) {
+                            telemetry.addData("turn right: ", -angle);
+                        }
+                        drive.turn(Math.toRadians(angle));
+                    }
 
-                    // ===============SOME SUCCESS!!!!==============
-
-                    // THIS BIT OF CODE WORKS -- IT MAKES THE BOT AUTOMATICALLY TURN 45 AND MOVE 2 INCHES
-                    // NOTES ARE BELOW IT
-
-                    double angle = visionPole.getAngle();
-                    drive.turn(Math.toRadians(45));
-
-                    Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
-                    drive.setPoseEstimate(startPose);
-                    TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
-                            .forward(-2) // note the negative to make it go forwards
-                            .build();
-                    drive.followTrajectorySequence(Distance);
                     lastPress = true;
                     currentMode = states.DRIVER_CONTROL;
 
@@ -161,9 +156,6 @@ public class PoleAimTele extends LinearOpMode {
                     // =============================================
 
 
-
-
-                    telemetry.addData("angel we need to turn: ", angle);
 
                     /*
                     int numberOfTurns = 0;
@@ -196,27 +188,22 @@ public class PoleAimTele extends LinearOpMode {
                     }
 */
                     // Get the distance between camera and pole
-                    double distance = visionPole.getDistance();
+                    // double distance = visionPole.getDistance(); // this has to be inch!!!
+                    double distance = visionPole.getDistanceFromFocalLength();
+
+                    Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
+                    drive.setPoseEstimate(startPose);
+                    TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
+                            .forward(-distance) // note the negative to make it go forwards
+                            .build();
+                    drive.followTrajectorySequence(Distance);
 
                     // Update the telemetry with the distance data
                     telemetry.addData("distance we need to move forward: ", distance);
                     telemetry.addLine();
                     telemetry.update();
 
-                    /*
-                    // Move
-                    startPose = new Pose2d(0, 0, Math.toRadians(0));
-                    drive.setPoseEstimate(startPose);
-                    Trajectory Distance = drive.trajectoryBuilder(startPose)
-                            .forward(distance)
-                            .build();
-                    drive.followTrajectoryAsync(Distance);
-*/
- /*                   // WHEN DONE WE CEDE CONTROL BACK TO THE DRIVER
-                    if (!drive.isBusy()) {
-                        currentMode = states.DRIVER_CONTROL;
-                    }
-   */
+
                     break;
             }
         }

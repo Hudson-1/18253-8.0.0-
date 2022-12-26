@@ -34,6 +34,8 @@ public class VisionPole implements Subsystem {
     public static double FOV = 55.0;            // FOV of the webcam
     public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
     public static double offset = 0.1;          // offset from pole surface to robot
+    public static double knownDistance = 12.0;  // Known distance to estimate the focal length
+    public static double knownImageWidth = 26.0; // pole width in the image
 
     // Current color it is detecting is yellow.
     public static double hueMin = 0;
@@ -196,6 +198,14 @@ public class VisionPole implements Subsystem {
     }
 
     public int getNumberOfContours() { return numberOfContours; }
+
+    private double getFocalLength(double measuredDistance, double realWidth, double imageWidth) {
+        return imageWidth * measuredDistance / realWidth;
+    }
+
+    public double getDistanceFromFocalLength() {
+        return (poleDiameter * getFocalLength(knownDistance, poleDiameter, knownImageWidth)) / widthOfTheClosestPole;
+    }
 
 
 }
