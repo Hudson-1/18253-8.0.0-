@@ -29,8 +29,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
-    static double angleRange = 5.0; //number must be positive
-    static double distanceRange = 3.0;
+    static double angleRange = 5.0;     // smallest angle range that we can turn
+    static double distanceRange = 3.0;  // smallest distance range that we can move
+    static int timer = 500;             // milliseconds that we sleep for
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
     public enum states {
@@ -168,10 +169,10 @@ public class PoleAimTele extends LinearOpMode {
                     telemetry.update();
                     lastPress = true;
 
-                    if (!actions) {
+                    if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                         currentMode = states.DRIVER_CONTROL;
-                    } else {
-                        sleep(500);
+                    } else {            // Otherwise, sleep to give other threads chances to run
+                        sleep(timer);
                     }
 
                     break;
