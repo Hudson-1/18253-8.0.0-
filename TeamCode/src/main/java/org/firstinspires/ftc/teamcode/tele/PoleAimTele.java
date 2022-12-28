@@ -29,7 +29,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
-    static double range = 3.0; //number must be positive
+    static double angleRange = 5.0; //number must be positive
+    static double distanceRange = 3.0;
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
     public enum states {
@@ -39,8 +40,15 @@ public class PoleAimTele extends LinearOpMode {
 
     private states currentMode = states.DRIVER_CONTROL;
 
-    private boolean IsWithinRange(double angle) {
-        if ((angle > (0-range)) && (angle < range)) {
+    private boolean IsWithinAngleRange(double angle) {
+        if ((angle > (0-angleRange)) && (angle < angleRange)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean IsWithinDistanceRange(double distance) {
+        if ((distance > (0-distanceRange)) && (distance < distanceRange)) {
             return true;
         }
         return false;
@@ -121,38 +129,50 @@ public class PoleAimTele extends LinearOpMode {
                     telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
                     telemetry.addData("the number of Contours: ", visionPole.getNumberOfContours());
 
+                    boolean actions = false;
+
                     // Get the angle that we need to turn in order for our camera to face the pole straight
                     double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
 
-                    if (!IsWithinRange(angle)) {
+                    if (!IsWithinAngleRange(angle)) {
                         if (angle > 0) {
                             telemetry.addData("turn left: ", angle);
                         } else if (angle < 0) {
                             telemetry.addData("turn right: ", -angle);
                         }
                         drive.turn(Math.toRadians(angle));
+                        actions = true;
+
                     } else {
                         telemetry.addData("angle falls within the range: ", angle);
 
                         // Get the distance between camera and pole from the perceived focal length
                         double distance = visionPole.getDistanceFromFocalLength();
 
-                        // Update the telemetry with the distance data
-                        telemetry.addData("distance we need to move forward: ", distance);
+                        if (!IsWithinDistanceRange(distance)) {
+                            // Update the telemetry with the distance data
+                            telemetry.addData("distance we need to move forward: ", distance);
 
-                        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
-                        drive.setPoseEstimate(startPose);
-                        TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
-                                .forward(-distance) // note the negative to make it go forwards
-                                .build();
-                        drive.followTrajectorySequence(Distance);
+                            Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
+                            drive.setPoseEstimate(startPose);
+                            TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
+                                    .forward(-distance) // note the negative to make it go forwards
+                                    .build();
+                            drive.followTrajectorySequence(Distance);
+
+                            actions = true;
+                        }
 
                     }
 
                     telemetry.update();
-
                     lastPress = true;
-                    currentMode = states.DRIVER_CONTROL;
+
+                    if (!actions) {
+                        currentMode = states.DRIVER_CONTROL;
+                    } else {
+                        sleep(500);
+                    }
 
                     break;
             }
