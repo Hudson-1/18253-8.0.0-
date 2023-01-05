@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.arcrobotics.ftclib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
