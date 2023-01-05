@@ -112,27 +112,9 @@ public class PoleAimTele extends LinearOpMode {
 
                 case AUTO_ALIGN:
 
-                 //   numberOfTimesItIsGettingCalled++;
-                    /*
-                    After calculating the angle we need to turn and the distance we need to drive:
-                        - We start by only turning the angle.
-                        - Then we have a loop:
-                        Update the camera image and reanalyze it.
-                            If the midline of the pole is not the same as the center of the screen (plus or minus a small amount) we repeat the loop.
-                            If the midline is the same as the center if the screen (plus or minus), we move on.
-                        - Then we drive forward the specified distance.
-                       At this point we SHOULD be where we need to be.
-                       But we could always run the loop one more time if we find it’s still not accurate enough.
-                     */
-
-                    // Update the telemetry with the latest data
-                    telemetry.addData("width of the closet pole: ", visionPole.getWidthOfTheClosestPole());
-                    telemetry.addData("distance between pole and center: ", visionPole.getDistanceFromPoleCenterToImageCenter());
-                    telemetry.addData("the number of Contours: ", visionPole.getNumberOfContours());
-
                     boolean actions = false;
 
-                    // Get the angle that we need to turn in order for our camera to face the pole straight
+                    // Get the angle that we need to turn
                     double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
 
                     if (!IsWithinAngleRange(angle)) {
@@ -145,9 +127,9 @@ public class PoleAimTele extends LinearOpMode {
                         actions = true;
 
                     } else {
-                        telemetry.addData("angle falls within the range: ", angle);
+                        telemetry.addData("angle falls within range: ", angle);
 
-                        // Get the distance between camera and pole from the perceived focal length
+                        // Get the distance between camera and pole using perceived focal length
                         double distance = visionPole.getDistanceFromFocalLength();
 
                         if (!IsWithinDistanceRange(distance)) {
@@ -171,7 +153,7 @@ public class PoleAimTele extends LinearOpMode {
 
                     if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                         currentMode = states.DRIVER_CONTROL;
-                    } else {            // Otherwise, sleep to give other threads chances to run
+                    } else {            // Otherwise, sleep to give other threads a chance to run
                         sleep(timer);
                     }
 
