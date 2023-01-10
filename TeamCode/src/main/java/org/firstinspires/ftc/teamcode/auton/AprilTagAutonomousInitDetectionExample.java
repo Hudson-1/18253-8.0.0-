@@ -37,8 +37,7 @@ import java.util.ArrayList;
 
 @Config
 @TeleOp
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
-{
+public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -56,146 +55,56 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
     // UNITS ARE METERS
     double tagsize = 0.166;
 
-     // Tag ID 11,12,13  from the 36h11 family
+    // Tag ID 11,12,13  from the 36h11 family
     int LEFT = 11;
     int MIDDLE = 12;
     int RIGHT = 13;
 
-    AprilTagDetection tagOfInterest = null;
+    int tagOfInterest;
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam1"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
         camera.setPipeline(aprilTagDetectionPipeline);
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-
-        {
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened()
-            {
-                camera.startStreaming(800,448, OpenCvCameraRotation.SIDEWAYS_LEFT);
+            public void onOpened() {
+                camera.startStreaming(800, 448, OpenCvCameraRotation.SIDEWAYS_LEFT);
             }
 
             @Override
-            public void onError(int errorCode)
-            {
+            public void onError(int errorCode) {
 
             }
         });
+    }
+    int detections = 0;
+    public void visionLoop() {
+        //currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+        ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+        detections = currentDetections.size();
+        if(currentDetections.size() != 0){
 
-        telemetry.setMsTransmissionInterval(50);
-        FtcDashboard.getInstance().startCameraStream(camera, 0);  //added
-
-        /*
-         * The INIT-loop:
-         * This REPLACES waitForStart!
-         */
-        while (!isStarted() && !isStopRequested())
-        {
-            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-
-            if(currentDetections.size() != 0)
-            {
-                boolean tagFound = false;
-
-                for(AprilTagDetection tag : currentDetections)
-                {
-                    if(tag.id == LEFT || tag.id == MIDDLE || tag.id == RIGHT)
-                    {
-                        tagOfInterest = tag;
-                        tagFound = true;
-                        break;
-                    }
+            for(AprilTagDetection tag : currentDetections){
+                if(tag.id == LEFT){
+                    tagOfInterest = 1;
+                    break;
+                } else if(tag.id == MIDDLE){
+                    tagOfInterest = 2;
+                    break;
+                } else if(tag.id == RIGHT){
+                    tagOfInterest = 3;
+                    break;
                 }
-
-                if(tagFound)
-                {
-                    telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
-                    tagToTelemetry(tagOfInterest);
-                }
-                else
-                {
-                    telemetry.addLine("Don't see tag of interest :(");
-
-                    if(tagOfInterest == null)
-                    {
-                        telemetry.addLine("(The tag has never been seen)");
-                    }
-                    else
-                    {
-                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                        tagToTelemetry(tagOfInterest);
-                    }
-                }
-
             }
-            else
-            {
-                telemetry.addLine("Don't see tag of interest :(");
-
-                if(tagOfInterest == null)
-                {
-                    telemetry.addLine("(The tag has never been seen)");
-                }
-                else
-                {
-                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                    tagToTelemetry(tagOfInterest);
-                }
-
-            }
-
-            telemetry.update();
-            sleep(20);
-        }
-
-        /*
-         * The START command just came in: now work off the latest snapshot acquired
-         * during the init loop.
-         */
-
-        /* Update the telemetry */
-        if(tagOfInterest != null)
-        {
-            telemetry.addLine("Tag snapshot:\n");
-            tagToTelemetry(tagOfInterest);
-            telemetry.update();
-        }
-        else
-        {
-            telemetry.addLine("No tag snapshot available, it was never sighted during the init loop :(");
-            telemetry.update();
-        }
-
-        /* Actually do something useful */
-        if(tagOfInterest == null || tagOfInterest.id == LEFT){
-            //trajectory
-        }
-        else if(tagOfInterest.id == MIDDLE){
-            //trajectory
-        }
-        else{
-            //trajectory
-        }
-
-
-
-        /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-        while (opModeIsActive()) {sleep(20);}
+        } else tagOfInterest = -1;
     }
 
-    void tagToTelemetry(AprilTagDetection detection)
-    {
-        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
-        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
-        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
-        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
-        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
+    public int getSignalPos(){
+
+        return tagOfInterest;
     }
 }
