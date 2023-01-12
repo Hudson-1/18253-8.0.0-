@@ -21,7 +21,6 @@
 
 package org.firstinspires.ftc.teamcode.auton;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -31,7 +30,6 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
@@ -82,7 +80,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
         });
     }
     int detections = 0;
-    public void visionLoop() {
+    public April_Tag_States visionLoop() {
         //currentDetections = aprilTagDetectionPipeline.getLatestDetections();
         ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
         detections = currentDetections.size();
@@ -90,21 +88,21 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
 
             for(AprilTagDetection tag : currentDetections){
                 if(tag.id == LEFT){
-                    tagOfInterest = 1;
-                    break;
+                    return April_Tag_States.ONE;
                 } else if(tag.id == MIDDLE){
-                    tagOfInterest = 2;
-                    break;
+                    return April_Tag_States.TWO;
                 } else if(tag.id == RIGHT){
-                    tagOfInterest = 3;
-                    break;
+                    return April_Tag_States.THREE;
                 }
             }
-        } else tagOfInterest = -1;
+        }
+        return April_Tag_States.ZERO;
     }
 
-    public int getSignalPos(){
-
-        return tagOfInterest;
+    public enum April_Tag_States {
+        ONE,
+        TWO,
+        THREE,
+        ZERO
     }
 }

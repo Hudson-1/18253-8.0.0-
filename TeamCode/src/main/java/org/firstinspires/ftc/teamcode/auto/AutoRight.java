@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstra
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.auton.AprilTagAutonomousInitDetectionExample;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.Robot;
@@ -27,14 +28,20 @@ public class AutoRight extends LinearOpMode {
         // The starting position of the robot on the field:
         Pose2d startPose = new Pose2d(36, -64, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
-        Vision vision = new Vision();
-        vision.init(hardwareMap);
+        //Vision vision = new Vision();
+        //vision.init(hardwareMap);
 
-        Vision.Detection_States target = Vision.Detection_States.ONE;
+        //Vision.Detection_States target = Vision.Detection_States.ONE;
+
+        AprilTagAutonomousInitDetectionExample aprilTag = new AprilTagAutonomousInitDetectionExample();
+        AprilTagAutonomousInitDetectionExample.April_Tag_States new_target = AprilTagAutonomousInitDetectionExample.April_Tag_States.ONE;
+
+
 
         while (!isStopRequested() && !opModeIsActive()) {
-            target = vision.returnVisionState();
-            telemetry.addData("Vision condition is: ",target);
+            //target = vision.returnVisionState();
+            new_target = aprilTag.visionLoop();
+            telemetry.addData("Vision condition is: ",new_target);
             telemetry.update();
         }
 
@@ -43,7 +50,7 @@ public class AutoRight extends LinearOpMode {
         double parkingOption1 = 22; // TODO edit this
 
         double chosenTarget;  // use this later in your parking routine
-        switch (target) {
+        switch (new_target) {
             case ONE:
                 chosenTarget = parkingOption1;
                 break;
