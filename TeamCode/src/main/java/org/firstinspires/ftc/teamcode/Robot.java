@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Robot {
     MecDrive drive;
-    Intake intake;
+    public Intake intake;
     //   Shooter shooter;
     public Lift lift;
     List<Subsystem> list;

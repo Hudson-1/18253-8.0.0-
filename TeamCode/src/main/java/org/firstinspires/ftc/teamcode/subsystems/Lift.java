@@ -28,8 +28,8 @@ public class Lift implements Subsystem {
     public static double REST_slides = 0.0;
     public static double CHECK_slides = 4.0;
     public static double LOW_slides = 7.5;
-    public static double MID_slides = 18;
-    public static double HIGH_slides = 28;
+    public static double MID_slides = 17.5;
+    public static double HIGH_slides = 27;
     public static double STACK_slides = 9;
 
     public static double SPOOL_SIZE_IN = 0.5; // radius in inches
@@ -52,20 +52,20 @@ public class Lift implements Subsystem {
     public static double WAIT_FOR_CLAW_OPEN = 500;
     // change claw
 
-    public static double clawOpen = 0.65;
-    public static double clawClose = .4;
+    public static double clawOpen = 0.8;
+    public static double clawClose = .95;
 
     // change v4b
 
-    public static double rest = .86;
-    public static double front = 8;
-    public static double back = 0.24;
+    public static double rest = .65;
+    public static double front = .9;
+    public static double back = 0.165;
     public static double stack = .75;
-    public static double front5 = .95;
-    public static double front4 = .9;
-    public static double front3 = .85;
-    public static double front2 = .8;
-    public static double front1 = .85;
+    public static double front5 = .82;
+    public static double front4 = .78;
+    public static double front3 = .74;
+    public static double front2 = .7;
+    public static double front1 = .66;
     public static double intakein = .4;
     public static double intakeout = .07;
     boolean doResetClaw = true;
