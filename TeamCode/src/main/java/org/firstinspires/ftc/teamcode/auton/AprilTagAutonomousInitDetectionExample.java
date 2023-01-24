@@ -58,7 +58,8 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
     int MIDDLE = 12;
     int RIGHT = 13;
 
-    int tagOfInterest;
+
+    ArrayList<AprilTagDetection> currentDetections;
 
     @Override
     public void runOpMode() {
@@ -81,11 +82,9 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
     }
     int detections = 0;
     public April_Tag_States visionLoop() {
-        //currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-        ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+        currentDetections = aprilTagDetectionPipeline.getLatestDetections();
         detections = currentDetections.size();
         if(currentDetections.size() != 0){
-
             for(AprilTagDetection tag : currentDetections){
                 if(tag.id == LEFT){
                     return April_Tag_States.ONE;
