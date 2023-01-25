@@ -41,6 +41,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
 
     static final double FEET_PER_METER = 3.28084;
 
+
     // Lens intrinsics
     // UNITS ARE PIXELS
     // NOTE: this calibration is for the C920 webcam at 800x448.
