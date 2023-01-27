@@ -70,8 +70,6 @@ public class AutoLeft extends LinearOpMode {
 
         */
 
-
-
         switch(aprilTag.getSignalPos()){
             case 1:
                 chosenTarget = parkingOption1;
