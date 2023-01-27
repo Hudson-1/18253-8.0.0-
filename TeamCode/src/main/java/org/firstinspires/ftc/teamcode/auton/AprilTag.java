@@ -37,7 +37,7 @@ import java.util.ArrayList;
 @TeleOp
 public class AprilTag extends LinearOpMode {
     OpenCvCamera camera;
-    AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    AprilTagDetectionPipeline aprilTagDetectionPipeline = new AprilTagDetectionPipeline(0.166, 578.272, 578.272, 402.145, 221.506);
 
     static final double FEET_PER_METER = 3.28084;
 

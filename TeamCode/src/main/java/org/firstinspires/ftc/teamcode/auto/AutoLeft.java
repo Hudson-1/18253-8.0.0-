@@ -39,7 +39,7 @@ public class AutoLeft extends LinearOpMode {
         Vision.Detection_States target = Vision.Detection_States.ONE;
 
         AprilTag aprilTag = new AprilTag();
-     //   AprilTagAutonomousInitDetectionExample.April_Tag_States new_target = AprilTagAutonomousInitDetectionExample.April_Tag_States.ONE;
+     //   AprilTag.April_Tag_States new_target = AprilTag.April_Tag_States.ONE;
 
 
         while (!isStopRequested() && !opModeIsActive()) {
