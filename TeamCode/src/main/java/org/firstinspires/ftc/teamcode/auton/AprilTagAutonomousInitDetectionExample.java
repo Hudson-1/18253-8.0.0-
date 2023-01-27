@@ -82,27 +82,28 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
         });
     }
     int detections = 0;
+
     public April_Tag_States visionLoop() {
         currentDetections = aprilTagDetectionPipeline.getLatestDetections();
         detections = currentDetections.size();
-        if(currentDetections.size() != 0){
-            for(AprilTagDetection tag : currentDetections){
-                if(tag.id == LEFT){
+        if(currentDetections.size() != 0) {
+            for (AprilTagDetection tag : currentDetections) {
+                if (tag.id == LEFT) {
                     return April_Tag_States.ONE;
-                } else if(tag.id == MIDDLE){
+                } else if (tag.id == MIDDLE) {
                     return April_Tag_States.TWO;
-                } else if(tag.id == RIGHT){
+                } else {
                     return April_Tag_States.THREE;
                 }
             }
         }
-        return April_Tag_States.ZERO;
+        return April_Tag_States.THREE;
     }
 
     public enum April_Tag_States {
         ONE,
         TWO,
-        THREE,
-        ZERO
+        THREE
+
     }
 }
