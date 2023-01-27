@@ -15,13 +15,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.auton.AprilTagAutonomousInitDetectionExample;
+import org.firstinspires.ftc.teamcode.auton.AprilTag;
 //@Disabled
 @Config
 @Autonomous
 public class AutoLeft extends LinearOpMode {
-
-
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -29,6 +27,7 @@ public class AutoLeft extends LinearOpMode {
         SampleMecanumDrive drive = robot.getDriveClass().getDrive();
         Lift lift = robot.lift;
         Intake intake = robot.intake;
+
         // The starting position of the robot on the field:
         Pose2d startPose = new Pose2d(-36, -64, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
@@ -38,14 +37,16 @@ public class AutoLeft extends LinearOpMode {
 
         Vision.Detection_States target = Vision.Detection_States.ONE;
 
-     //   AprilTagAutonomousInitDetectionExample aprilTag = new AprilTagAutonomousInitDetectionExample();
+        AprilTag aprilTag = new AprilTag();
      //   AprilTagAutonomousInitDetectionExample.April_Tag_States new_target = AprilTagAutonomousInitDetectionExample.April_Tag_States.ONE;
 
 
         while (!isStopRequested() && !opModeIsActive()) {
             target = vision.returnVisionState();
+            aprilTag.visionLoop();
            // new_target = aprilTag.visionLoop();
-            telemetry.addData("Vision condition is: ",target);
+            //telemetry.addData("Vision condition is: ",target);
+            telemetry.addData("Vision condition is: ",aprilTag.getSignalPos());
             telemetry.update();
         }
 
@@ -53,8 +54,8 @@ public class AutoLeft extends LinearOpMode {
         double parkingOption2 = .5; // TODO edit this
         double parkingOption1 = 24; // TODO edit this
 
-        double chosenTarget;  // use this later in your parking routine
-        switch (target) {
+        double chosenTarget = parkingOption2;  // use this later in your parking routine
+       /* switch (target) {
             case ONE:
                 chosenTarget = parkingOption1;
                 break;
@@ -62,6 +63,22 @@ public class AutoLeft extends LinearOpMode {
                 chosenTarget = parkingOption2;
                 break;
             default:
+                chosenTarget = parkingOption3;
+                break;
+        }
+
+        */
+
+
+
+        switch(aprilTag.getSignalPos()){
+            case 1:
+                chosenTarget = parkingOption1;
+                break;
+            case 2:
+                chosenTarget = parkingOption2;
+                break;
+            case 3:
                 chosenTarget = parkingOption3;
                 break;
         }

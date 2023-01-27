@@ -35,7 +35,7 @@ import java.util.ArrayList;
 
 @Config
 @TeleOp
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
+public class AprilTag extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -59,6 +59,7 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
     int MIDDLE = 12;
     int RIGHT = 13;
 
+    int signalPosition;
 
     ArrayList<AprilTagDetection> currentDetections;
 
@@ -83,21 +84,28 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
     }
     int detections = 0;
 
-    public April_Tag_States visionLoop() {
+    public void visionLoop() {
         currentDetections = aprilTagDetectionPipeline.getLatestDetections();
         detections = currentDetections.size();
         if(currentDetections.size() != 0) {
             for (AprilTagDetection tag : currentDetections) {
                 if (tag.id == LEFT) {
-                    return April_Tag_States.ONE;
+                    //return April_Tag_States.ONE;
+                    signalPosition = 1;
+                    break;
                 } else if (tag.id == MIDDLE) {
-                    return April_Tag_States.TWO;
+                    //return April_Tag_States.TWO;
+                    signalPosition = 2;
+                    break;
                 } else {
-                    return April_Tag_States.THREE;
+                    //return April_Tag_States.THREE;
+                    signalPosition = 3;
+                    break;
                 }
             }
         }
-        return April_Tag_States.THREE;
+        //return April_Tag_States.THREE;
+
     }
 
     public enum April_Tag_States {
@@ -105,5 +113,8 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
         TWO,
         THREE
 
+    }
+    public int getSignalPos(){
+        return signalPosition;
     }
 }
