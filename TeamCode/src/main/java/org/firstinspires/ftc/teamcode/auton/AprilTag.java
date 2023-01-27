@@ -61,7 +61,7 @@ public class AprilTag extends LinearOpMode {
 
     int signalPosition;
 
-    ArrayList<AprilTagDetection> currentDetections = new ArrayList<>();;
+    ArrayList<AprilTagDetection> currentDetections = new ArrayList<>();
 
     @Override
     public void runOpMode() {
