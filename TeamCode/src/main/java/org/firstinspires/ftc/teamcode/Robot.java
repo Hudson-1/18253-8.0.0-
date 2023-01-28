@@ -24,7 +24,7 @@ public class Robot {
     public Robot(Gamepad gamepad1, Gamepad gamepad2, HardwareMap map, boolean auto) {
         this.auto = auto;
         drive = new MecDrive(gamepad1,auto);
-        intake = new Intake(gamepad1, gamepad2, true);
+        intake = new Intake(gamepad1, gamepad2, true, !auto);
 
         //  shooter = new Shooter(gamepad1, true);
         lift = new Lift(gamepad1, true,auto);
