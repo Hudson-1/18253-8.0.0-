@@ -369,19 +369,19 @@ public class Lift implements Subsystem {
                 setV4bFromState(state);
                 setLiftPosition(LiftState.REST,0);
                 if(g.a) {
-                    state = States.LOW_ALTERNATIVE;
+                    state = States.LOW;
                     release();
                     timer.reset();
                 }
 
                 if(g.b) {
-                    state = States.MID_ALTERNATIVE;
+                    state = States.MID;
                     release();
                     timer.reset();
                 }
 
                 if(g.right_bumper) {
-                    state = States.HIGH_ALTERNATIVE;
+                    state = States.HIGH;
                     release();
                     timer.reset();
                 }
