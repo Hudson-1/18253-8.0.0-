@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.ArrayList;
 
-public class AprilAutonLeft {
+//public class AprilAutonLeft {
     /*
      * Copyright (c) 2021 OpenFTC Team
      *
@@ -52,8 +52,9 @@ public class AprilAutonLeft {
      * SOFTWARE.
      */
     @Config
-    @TeleOp
-    public class AprilTagAutonomousInitDetectionExample extends LinearOpMode
+    @Autonomous
+    public class AprilAutonLeft extends LinearOpMode
+
     {
         OpenCvCamera camera;
         AprilTagDetectionPipeline aprilTagDetectionPipeline;
@@ -234,4 +235,4 @@ public class AprilAutonLeft {
             }
         }
     }
-}
+
