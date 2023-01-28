@@ -141,12 +141,18 @@ import java.util.ArrayList;
             /* Actually do something useful */
             if(tagOfInterest.id == LEFT){
                 chosenTarget = parkingOption1;
+                telemetry.addLine("ONE");
+                telemetry.update();
             }
             else if(tagOfInterest.id == MIDDLE){
                 chosenTarget = parkingOption2;
+                telemetry.addLine("TWO");
+                telemetry.update();
             }
             else{
                 chosenTarget = parkingOption3;
+                telemetry.addLine("THREE or maybe not");
+                telemetry.update();
             }
 
             TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
