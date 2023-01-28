@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.auton.AprilTag;
+
 //@Disabled
 @Config
 @Autonomous
@@ -38,16 +38,16 @@ public class AutoLeft extends LinearOpMode {
 
         Vision.Detection_States target = Vision.Detection_States.ONE;
 
-        AprilTag aprilTag = new AprilTag();
+        //AprilTag aprilTag = new AprilTag();
      //   AprilTag.April_Tag_States new_target = AprilTag.April_Tag_States.ONE;
 
 
         while (!isStopRequested() && !opModeIsActive()) {
             target = vision.returnVisionState();
-            aprilTag.visionLoop();
+            //aprilTag.visionLoop();
            // new_target = aprilTag.visionLoop();
-            //telemetry.addData("Vision condition is: ",target);
-            telemetry.addData("Vision condition is: ",aprilTag.getSignalPos());
+            telemetry.addData("Vision condition is: ",target);
+            //telemetry.addData("Vision condition is: ",aprilTag.getSignalPos());
             telemetry.update();
         }
 
@@ -56,7 +56,7 @@ public class AutoLeft extends LinearOpMode {
         double parkingOption1 = 24; // TODO edit this
 
         double chosenTarget = parkingOption2;  // use this later in your parking routine
-       /* switch (target) {
+        switch (target) {
             case ONE:
                 chosenTarget = parkingOption1;
                 break;
@@ -68,8 +68,8 @@ public class AutoLeft extends LinearOpMode {
                 break;
         }
 
-        */
 
+/*
         switch(aprilTag.getSignalPos()){
             case 1:
                 chosenTarget = parkingOption1;
@@ -81,6 +81,8 @@ public class AutoLeft extends LinearOpMode {
                 chosenTarget = parkingOption3;
                 break;
         }
+
+ */
 
 
      //   Lift lift = robot.getLift();
