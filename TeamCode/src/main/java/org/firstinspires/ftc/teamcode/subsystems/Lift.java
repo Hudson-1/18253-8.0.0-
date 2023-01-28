@@ -368,9 +368,6 @@ public class Lift implements Subsystem {
                 }
                 setV4bFromState(state);
                 setLiftPosition(LiftState.REST,0);
-                break;
-            case STACK_SAFE:
-                intakeout();
                 if(g.a) {
                     state = States.LOW_ALTERNATIVE;
                     release();
@@ -388,7 +385,6 @@ public class Lift implements Subsystem {
                     release();
                     timer.reset();
                 }
-                setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
                 break;
             case STACK_DEPOSIT:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
