@@ -30,7 +30,6 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.ArrayList;
 
-//public class AprilAutonLeft {
     /*
      * Copyright (c) 2021 OpenFTC Team
      *
@@ -51,10 +50,10 @@ import java.util.ArrayList;
      * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
      * SOFTWARE.
      */
+
     @Config
     @Autonomous
     public class AprilAutonLeft extends LinearOpMode
-
     {
         OpenCvCamera camera;
         AprilTagDetectionPipeline aprilTagDetectionPipeline;
@@ -73,9 +72,9 @@ import java.util.ArrayList;
         double tagsize = 0.166;
 
         // Tag ID 11,12,13  from the 36h11 family
-        int LEFT = 11;
-        int MIDDLE = 12;
-        int RIGHT = 13;
+        int POSITION_1 = 11;
+        int POSITION_2 = 12;
+        int POSITION_3 = 13;
 
         AprilTagDetection tagOfInterest = null;
 
@@ -83,7 +82,7 @@ import java.util.ArrayList;
         public void runOpMode()
         {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam1"), cameraMonitorViewId);
+            camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam2"), cameraMonitorViewId);
             aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
             camera.setPipeline(aprilTagDetectionPipeline);
@@ -92,36 +91,20 @@ import java.util.ArrayList;
                 @Override
                 public void onOpened()
                 {
-                    camera.startStreaming(800,448, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                    camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
                 }
 
                 @Override
-                public void onError(int errorCode) {}
+                public void onError(int errorCode)
+                {
+
+                }
             });
+
             telemetry.setMsTransmissionInterval(50);
             FtcDashboard.getInstance().startCameraStream(camera, 0);  //added
-            /*
-             * The INIT-loop:
-             * This REPLACES waitForStart!
-             */
-            while (!isStarted() && !isStopRequested()) {
-                ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-                if(currentDetections.size() != 0) {
-                    for(AprilTagDetection tag : currentDetections) {
-                        if(tag.id == LEFT || tag.id == MIDDLE || tag.id == RIGHT) {
-                            tagOfInterest = tag;
-                            break;
-                        }
-                    }
-                }
-                telemetry.update();
-                sleep(20);
-            }
-            /*
-             * The START command just came in: now work off the latest snapshot acquired
-             * during the init loop.
-             */
-            /* Update the telemetry */
+
+            //HARDWARE MAPPING HERE etc.
 
             Robot robot = new Robot(gamepad1, gamepad2, hardwareMap,true);
             SampleMecanumDrive drive = robot.getDriveClass().getDrive();
@@ -138,26 +121,96 @@ import java.util.ArrayList;
 
             double chosenTarget = parkingOption2;
 
-            /* Actually do something useful */
-            if(tagOfInterest.id == LEFT){
-                chosenTarget = parkingOption1;
-                telemetry.addLine("ONE");
+            /*
+             * The INIT-loop:
+             * This REPLACES waitForStart!
+             */
+            while (!isStarted() && !isStopRequested()) {
+                ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+
+                if(currentDetections.size() != 0)
+                {
+                    boolean tagFound = false;
+
+                    for(AprilTagDetection tag : currentDetections)
+                    {
+                        if(tag.id == POSITION_1 || tag.id == POSITION_2 || tag.id == POSITION_3)
+                        {
+                            tagOfInterest = tag;
+                            tagFound = true;
+                            break;
+                        }
+                    }
+
+                    if(tagFound)
+                    {
+                        telemetry.addLine("Tag of interest is in sight!");
+                        tagToTelemetry(tagOfInterest);
+
+                    }
+                    else
+                    {
+                        telemetry.addLine("Don't see tag of interest :(");
+
+                        if(tagOfInterest == null)
+                        {
+                            telemetry.addLine("(The tag has never been seen)");
+                        }
+                        else
+                        {
+                            telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+                            tagToTelemetry(tagOfInterest);
+                        }
+                    }
+
+                }
+                else
+                {
+                    telemetry.addLine("Don't see tag of interest :(");
+
+                    if(tagOfInterest == null)
+                    {
+                        telemetry.addLine("(The tag has never been seen)");
+                    }
+                    else
+                    {
+                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+                        tagToTelemetry(tagOfInterest);
+                    }
+
+                }
+
+                telemetry.update();
+                sleep(20);
+            }
+
+            if(tagOfInterest != null)
+            {
+                telemetry.addLine("Tag snapshot:\n");
+                tagToTelemetry(tagOfInterest);
                 telemetry.update();
             }
-            else if(tagOfInterest.id == MIDDLE){
-                chosenTarget = parkingOption2;
-                telemetry.addLine("TWO");
-                telemetry.update();
-            }
-            else{
-                chosenTarget = parkingOption3;
-                telemetry.addLine("THREE or maybe not");
+            else
+            {
+                telemetry.addLine("No tag snapshot available, it was never sighted during the init loop :(");
                 telemetry.update();
             }
 
+waitForStart();
+
+            /* Actually do something useful */
+            if(tagOfInterest.id == POSITION_1){
+                chosenTarget = parkingOption1;
+            }
+            else if(tagOfInterest.id == POSITION_2){
+                chosenTarget = parkingOption2;
+            }
+            else{
+                chosenTarget = parkingOption3;
+            }
+
             TrajectorySequence Traj = drive.trajectorySequenceBuilder(startPose)
-//test
-                    // ----DRIVE FORWARD, LINE UP WITH POLE, MOVE TO POLE----
+
                     .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                     .setReversed(true)
                     .splineTo(new Vector2d(-36, -36), Math.toRadians(90))
@@ -230,15 +283,15 @@ import java.util.ArrayList;
                     //.back(50)
                     .build();
 
-            while (!isStarted()) {
-                telemetry.addData("Telemetry Test", 0);
-                telemetry.update();
-            }
-
             drive.followTrajectorySequenceAsync(Traj);
             while (opModeIsActive() && !isStopRequested()) {
                 robot.update();
             }
+        }
+
+        void tagToTelemetry(AprilTagDetection detection)
+        {
+            telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
         }
     }
 
