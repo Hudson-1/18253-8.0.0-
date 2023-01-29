@@ -291,7 +291,7 @@ waitForStart();
 
         void tagToTelemetry(AprilTagDetection detection)
         {
-            telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
+            telemetry.addLine(String.format("\nParking Location: %d", ((detection.id)-10)));
         }
     }
 
