@@ -37,11 +37,11 @@ public class VisionPole implements Subsystem {
     public static double knownImageWidth = 26.0; // pole width in the image
 
     // Current color it is detecting is yellow.
-    public static double hueMin = 0;
-    public static double hueMax = 100;
-    public static double saturationMin = 110;
+    public static double hueMin = 30;  // was 0
+    public static double hueMax = 120; // was 100
+    public static double saturationMin = 100;  // was 110
     public static double saturationMax = 255;
-    public static double valueMin = 140;
+    public static double valueMin = 100; // was 140
     public static double valueMax = 255;
     private double distanceFromPoleCenterToImageCenter;
     private double widthOfTheClosestPole;
@@ -57,7 +57,7 @@ public class VisionPole implements Subsystem {
         visionPipeline = new VisionPipeline();
 
         // Create a new Webcam instance and get the visionPipeline
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam1"));
         webcam.setPipeline(visionPipeline);
 
         // Open the camera and start processing the frames from the camera

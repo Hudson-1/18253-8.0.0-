@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
+
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -25,12 +26,13 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+@Config
 @TeleOp
 public class PoleAimTele extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
-    static double angleRange = 5.0;     // smallest angle range that we can turn
-    static double distanceRange = 3.0;  // smallest distance range that we can move
+    public static double angleRange = 5.0;     // smallest angle range that we can turn
+    public static double distanceRange = 3.0;  // smallest distance range that we can move
     static int timer = 500;             // milliseconds that we sleep for
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
