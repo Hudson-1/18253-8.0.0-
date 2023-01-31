@@ -101,18 +101,16 @@ public class VisionPoleRevised implements Subsystem {
 
         @Override
         public Mat processFrame(Mat input) {
-            input.copyTo(workingMatrix);
-
-            if (workingMatrix.empty()) { // If the frame is empty, just return
-                return input;
-            }
             Mat mat = new Mat();
 
-            //mat turns into HSV value
-            Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2HSV);
+            //blur mat
+            Imgproc.GaussianBlur(input, mat, new Size(5.0, 15.0), 0.00);
             if (mat.empty()) {
                 return input;
             }
+
+            //mat turns into HSV value
+            Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2HSV);
 
             // lenient bounds will filter out near yellow, this should filter out all near yellow things(tune this if needed)
             Scalar lowHSV = new Scalar(hueMin, saturationMin, valueMin); // lenient lower bound HSV for yellow
