@@ -22,6 +22,7 @@ public class PoleAimTeleRevised extends LinearOpMode {
     boolean lastPress = false;
     public static double angleRange = 6.0;     // smallest angle range that we can turn
     public static double distanceRange = 4.0;  // smallest distance range that we can move
+    public static double distanceDelta = 1.0;
     static int timer = 500;             // milliseconds that we sleep for
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
@@ -121,8 +122,8 @@ public class PoleAimTeleRevised extends LinearOpMode {
 
                             double delta = Math.abs(distance) - distanceRange;
 
-                            if (delta < 1.0) {
-                                delta = 1.0;
+                            if (delta < distanceDelta) {
+                                delta = distanceDelta;
                             }
 
                             if (distance > 0) {
@@ -151,6 +152,7 @@ public class PoleAimTeleRevised extends LinearOpMode {
                     lastPress = true;
 
                     if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
+                        gamepad1.rumbleBlips(3);
                         currentMode = states.DRIVER_CONTROL;
                     } else {            // Otherwise, sleep to give other threads a chance to run
                         sleep(timer);
