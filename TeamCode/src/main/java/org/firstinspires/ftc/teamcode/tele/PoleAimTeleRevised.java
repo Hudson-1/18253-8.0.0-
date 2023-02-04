@@ -13,14 +13,15 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPoleRevised;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import java.lang.Math;
 
 @Config
 @TeleOp
 public class PoleAimTeleRevised extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
-    public static double angleRange = 5.0;     // smallest angle range that we can turn
-    public static double distanceRange = 3.0;  // smallest distance range that we can move
+    public static double angleRange = 6.0;     // smallest angle range that we can turn
+    public static double distanceRange = 4.0;  // smallest distance range that we can move
     static int timer = 500;             // milliseconds that we sleep for
 
     // DEFINES THE TWO STATES -- DRIVER CONTROL OR AUTO ALIGNMENT
@@ -32,17 +33,11 @@ public class PoleAimTeleRevised extends LinearOpMode {
     private states currentMode = states.DRIVER_CONTROL;
 
     private boolean IsWithinAngleRange(double angle) {
-        if ((angle > (0-angleRange)) && (angle < angleRange)) {
-            return true;
+        return (Math.abs(angle) < angleRange);
         }
-        return false;
-    }
 
     private boolean IsWithinDistanceRange(double distance) {
-        if ((distance > (0-distanceRange)) && (distance < distanceRange)) {
-            return true;
-        }
-        return false;
+        return (Math.abs(distance) < distanceRange);
     }
 
     @Override
@@ -123,11 +118,25 @@ public class PoleAimTeleRevised extends LinearOpMode {
                         double distance = visionPole.getDistanceFromFocalLength();
 
                         if (!IsWithinDistanceRange(distance)) {
+
+                            double delta = Math.abs(distance) - distanceRange;
+
+                            if (delta < 1.0) {
+                                delta = 1.0;
+                            }
+
+                            if (distance > 0) {
+                                distance = delta;
+                            } else {
+                                distance = 0 - delta;
+                            }
+
                             // Update the telemetry with the distance data
                             telemetry.addData("distance we need to move forward: ", distance);
 
                             Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
                             drive.setPoseEstimate(startPose);
+
                             TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
                                     .forward(-distance) // note the negative to make it go forwards
                                     .build();
