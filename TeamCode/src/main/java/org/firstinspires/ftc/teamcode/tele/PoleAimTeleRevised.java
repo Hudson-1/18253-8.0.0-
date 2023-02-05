@@ -98,6 +98,13 @@ public class PoleAimTeleRevised extends LinearOpMode {
 
                 case AUTO_ALIGN:
 
+                    // if the right button is hit, we break out from the automatic mode into driver mode
+                    if (gamepad1.right_stick_button) {
+                        lastPress = true;
+                        currentMode = states.DRIVER_CONTROL;
+                        break;
+                    }
+
                     boolean actions = false;
 
                     // Get the angle that we need to turn
