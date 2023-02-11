@@ -66,6 +66,19 @@ public class PoleAimTeleRevised extends LinearOpMode {
             robot.update();
             dashboardTelemetry.update();
 
+            if (gamepad1.right_stick_button) {
+                if (currentMode == states.DRIVER_CONTROL) {
+                    currentMode = states.AUTO_ALIGN;
+                }
+                else {
+                    currentMode = states.DRIVER_CONTROL;
+                }
+
+                while (gamepad1.right_stick_button) {
+                    sleep(10);
+                }
+            }
+
             switch (currentMode) {
                 case DRIVER_CONTROL:
                     drive.setWeightedDrivePower(
@@ -76,36 +89,10 @@ public class PoleAimTeleRevised extends LinearOpMode {
                             )
                     );
 
-                    // PRESSING BUTTON TRIGGERS THE AUTO-ALIGN ROUTINE
-                    boolean button = gamepad1.right_stick_button;
-
-                    if (button) {
-                        lastPress = true;
-                    }
-
-                    if (lastPress && !button) {
-                        toggle = !toggle;
-                        lastPress = false;
-                    }
-
-                    if (toggle) {
-                        currentMode = states.AUTO_ALIGN;
-
-                    } else {
-                        currentMode = states.DRIVER_CONTROL;
-                    }
                     break;
 
                 case AUTO_ALIGN:
-
-                    // if the right button is hit, we break out from the automatic mode into driver mode
-                    if (gamepad1.right_stick_button) {
-                        lastPress = true;
-                        currentMode = states.DRIVER_CONTROL;
-                        break;
-                    }
-
-                    boolean actions = false;
+                   boolean actions = false;
 
                     // Get the angle that we need to turn
                     double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
@@ -156,7 +143,6 @@ public class PoleAimTeleRevised extends LinearOpMode {
                     }
 
                     telemetry.update();
-                    lastPress = true;
 
                     if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                         gamepad1.rumbleBlips(3);
