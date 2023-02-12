@@ -72,8 +72,7 @@ public class PoleAimTeleRevised extends LinearOpMode {
             try {
                 previousGamepad1.copy(currentGamepad1);
                 currentGamepad1.copy(gamepad1);
-            }
-            catch (RobotCoreException e) {
+            } catch (RobotCoreException e){
 
             }
 
@@ -84,78 +83,73 @@ public class PoleAimTeleRevised extends LinearOpMode {
                 currentMode = (currentMode == states.DRIVER_CONTROL) ? states.AUTO_ALIGN : states.DRIVER_CONTROL;
             }
 
-            switch (currentMode) {
-                case DRIVER_CONTROL:
-                    drive.setWeightedDrivePower(
-                            new Pose2d(
-                                    -gamepad1.left_stick_y,
-                                    -gamepad1.left_stick_x,
-                                    -gamepad1.right_stick_x
-                            )
-                    );
+            if (currentMode == states.DRIVER_CONTROL) {
+                drive.setWeightedDrivePower(
+                        new Pose2d(
+                                -gamepad1.left_stick_y,
+                                -gamepad1.left_stick_x,
+                                -gamepad1.right_stick_x
+                        )
+                );
+            } else {
+                boolean actions = false;
 
-                    break;
+                // Get the angle that we need to turn
+                double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
 
-                case AUTO_ALIGN:
-                   boolean actions = false;
+                if (!IsWithinAngleRange(angle)) {
+                    if (angle > 0) {
+                        telemetry.addData("turn left: ", angle);
+                    } else if (angle < 0) {
+                        telemetry.addData("turn right: ", -angle);
+                    }
+                    drive.turn(Math.toRadians(angle));
+                    actions = true;
 
-                    // Get the angle that we need to turn
-                    double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
+                } else {
+                    telemetry.addData("angle falls within range: ", angle);
 
-                    if (!IsWithinAngleRange(angle)) {
-                        if (angle > 0) {
-                            telemetry.addData("turn left: ", angle);
-                        } else if (angle < 0) {
-                            telemetry.addData("turn right: ", -angle);
+                    // Get the distance between camera and pole using perceived focal length
+                    double distance = visionPole.getDistanceFromFocalLength();
+
+                    if (!IsWithinDistanceRange(distance)) {
+
+                        double delta = Math.abs(distance) - distanceRange;
+
+                        if (delta < distanceDelta) {
+                            delta = distanceDelta;
                         }
-                        drive.turn(Math.toRadians(angle));
+
+                        if (distance > 0) {
+                            distance = delta;
+                        } else {
+                            distance = 0 - delta;
+                        }
+
+                        // Update the telemetry with the distance data
+                        telemetry.addData("distance we need to move forward: ", distance);
+
+                        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
+                        drive.setPoseEstimate(startPose);
+
+                        TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
+                                .forward(-distance) // note the negative to make it go forwards
+                                .build();
+                        drive.followTrajectorySequence(Distance);
+
                         actions = true;
-
-                    } else {
-                        telemetry.addData("angle falls within range: ", angle);
-
-                        // Get the distance between camera and pole using perceived focal length
-                        double distance = visionPole.getDistanceFromFocalLength();
-
-                        if (!IsWithinDistanceRange(distance)) {
-
-                            double delta = Math.abs(distance) - distanceRange;
-
-                            if (delta < distanceDelta) {
-                                delta = distanceDelta;
-                            }
-
-                            if (distance > 0) {
-                                distance = delta;
-                            } else {
-                                distance = 0 - delta;
-                            }
-
-                            // Update the telemetry with the distance data
-                            telemetry.addData("distance we need to move forward: ", distance);
-
-                            Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180)); // this is 180 bc bot is backwards
-                            drive.setPoseEstimate(startPose);
-
-                            TrajectorySequence Distance = drive.trajectorySequenceBuilder(startPose)
-                                    .forward(-distance) // note the negative to make it go forwards
-                                    .build();
-                            drive.followTrajectorySequence(Distance);
-
-                            actions = true;
-                        }
-
                     }
+                }
 
-                    telemetry.update();
+                telemetry.update();
 
-                    if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
-                        gamepad1.rumbleBlips(3);
-                    } else {            // Otherwise, sleep to give other threads a chance to run
-                        sleep(timer);
-                    }
+                if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
+                    gamepad1.rumbleBlips(3);
+                    currentMode = states.DRIVER_CONTROL;
+                } else {            // Otherwise, sleep to give other threads a chance to run
+                    sleep(timer);
+                }
 
-                    break;
             }
         }
     }
