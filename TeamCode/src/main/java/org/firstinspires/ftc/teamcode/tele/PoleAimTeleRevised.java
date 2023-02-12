@@ -5,7 +5,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
@@ -44,6 +46,9 @@ public class PoleAimTeleRevised extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        Gamepad currentGamepad1 = new Gamepad();
+        Gamepad previousGamepad1 = new Gamepad();
+
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
@@ -63,20 +68,20 @@ public class PoleAimTeleRevised extends LinearOpMode {
         visionPole.init(hardwareMap);
 
         while (opModeIsActive()) {
+
+            try {
+                previousGamepad1.copy(currentGamepad1);
+                currentGamepad1.copy(gamepad1);
+            }
+            catch (RobotCoreException e) {
+
+            }
+
             robot.update();
             dashboardTelemetry.update();
 
-            if (gamepad1.right_stick_button) {
-                if (currentMode == states.DRIVER_CONTROL) {
-                    currentMode = states.AUTO_ALIGN;
-                }
-                else {
-                    currentMode = states.DRIVER_CONTROL;
-                }
-
-                while (gamepad1.right_stick_button) {
-                    sleep(10);
-                }
+            if (currentGamepad1.right_stick_button && !previousGamepad1.right_stick_button) {
+                currentMode = (currentMode == states.DRIVER_CONTROL) ? states.AUTO_ALIGN : states.DRIVER_CONTROL;
             }
 
             switch (currentMode) {
@@ -146,7 +151,6 @@ public class PoleAimTeleRevised extends LinearOpMode {
 
                     if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                         gamepad1.rumbleBlips(3);
-                        currentMode = states.DRIVER_CONTROL;
                     } else {            // Otherwise, sleep to give other threads a chance to run
                         sleep(timer);
                     }
