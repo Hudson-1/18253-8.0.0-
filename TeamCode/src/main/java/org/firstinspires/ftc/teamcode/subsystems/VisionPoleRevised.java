@@ -64,14 +64,14 @@ public class VisionPoleRevised implements Subsystem {
         visionPipeline = new VisionPipeline();
 
         // Create a new Webcam instance and get the visionPipeline
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam1"));
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
 
         // Open the camera and start processing the frames from the camera
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override
