@@ -151,6 +151,9 @@ public class PoleAimTeleRevised extends LinearOpMode {
                 }
 
             }
+
+            idle();
+
         }
     }
 }
