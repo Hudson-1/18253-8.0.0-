@@ -26,8 +26,8 @@ import java.util.List;
 public class VisionPoleRevised implements Subsystem {
 
     // Configurable Vision Variables
-    public static int webcamHeight = 240;
-    public static int webcamWidth = 320;
+    public static int webcamHeight = 448; // was 240
+    public static int webcamWidth = 800; // was 320
     public static double FOV = 55.0;            // FOV of the webcam
     public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
     public static double offset = 0.1;          // offset from pole surface to robot
