@@ -146,12 +146,10 @@ public class PoleAimTeleRevised extends LinearOpMode {
                 if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                     gamepad1.rumbleBlips(3);
                     currentMode = states.DRIVER_CONTROL;
-                } else {            // Otherwise, sleep to give other threads a chance to run
-                    sleep(timer);
                 }
-
             }
 
+            // give the opportunity to other threads to run
             idle();
 
         }
