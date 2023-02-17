@@ -21,11 +21,13 @@ public class Intake implements Subsystem {
     public static double max = 1.0;
     public static double capMin = 1.0;
     public static double capMax = 1.0;
+    boolean isTeleop = false;
 
-    public Intake(Gamepad g1, Gamepad g2, boolean isTwoMotor) {
+    public Intake(Gamepad g1, Gamepad g2, boolean isTwoMotor, boolean isTeleop) {
         this.isTwoMotor = isTwoMotor;
         this.g1 = g1;
         this.g2 = g2;
+        this.isTeleop = isTeleop;
     }
 
     @Override
@@ -40,7 +42,9 @@ public class Intake implements Subsystem {
 
     @Override
     public void update() {
-        triggerIntake();
+        if (isTeleop) {
+            triggerIntake();
+        }
     }
 
     public void toggleIntake() {

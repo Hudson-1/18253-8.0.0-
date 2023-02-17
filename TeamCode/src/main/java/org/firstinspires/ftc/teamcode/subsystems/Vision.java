@@ -49,7 +49,7 @@ public class Vision implements Subsystem {
         visionType = VisionType.BGR2HSVcolor;
         visionPipeline = new VisionPipeline();
 
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam1"));
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
 
         // If the camera doesn't start up right away, maybe uncomment this section
@@ -124,9 +124,9 @@ public class Vision implements Subsystem {
 
     public Detection_States returnVisionState() {
 
-        if (getColorNum() > .15) {
+        if (getColorNum() > .3) {
             return Detection_States.THREE;
-        } else if (getColorNum() < 0.001) {
+        } else if (getColorNum() < 0.1) {
             return Detection_States.ONE;
         } else {
             return Detection_States.TWO;

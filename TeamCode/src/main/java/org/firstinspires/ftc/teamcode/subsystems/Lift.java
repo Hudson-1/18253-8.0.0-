@@ -352,9 +352,10 @@ public class Lift implements Subsystem {
             case STACK_3:
             case STACK_4:
             case STACK_5:
+                intakeout();
+
                 if (upDpadPress.press()) {
                     state = nextInStack(state);
-                    intakeout();
                 }
                 if (downDpadPress.press()) {
                     state = previousInStack(state);
@@ -365,31 +366,25 @@ public class Lift implements Subsystem {
                 if (g.dpad_right) {
                     state = States.STACK_SAFE;
                 }
-                if (getCurrentPosition() > 4) {
-                    stack();
-                }
-                setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
-                break;
-            case STACK_SAFE:
-                stack();
+                setV4bFromState(state);
+                setLiftPosition(LiftState.REST,0);
                 if(g.a) {
-                    state = States.LOW_ALTERNATIVE;
+                    state = States.LOW;
                     release();
                     timer.reset();
                 }
 
                 if(g.b) {
-                    state = States.MID_ALTERNATIVE;
+                    state = States.MID;
                     release();
                     timer.reset();
                 }
 
                 if(g.right_bumper) {
-                    state = States.HIGH_ALTERNATIVE;
+                    state = States.HIGH;
                     release();
                     timer.reset();
                 }
-                setLiftPosition(stateConversionForStack(state), stackHeightFromStatesForSlides(state));
                 break;
             case STACK_DEPOSIT:
                 if (timer.milliseconds() > WAIT_FOR_CLAW_MILLISECONDS) {
@@ -444,6 +439,13 @@ public class Lift implements Subsystem {
         v4bL.setPosition(1-stack);
         v4bR.setPosition(stack);
     }
+
+    public void setV4bFromState(States state) {
+        double position = stateToVirtual4bar(state);
+        v4bL.setPosition(1 - position);
+        v4bR.setPosition(position);
+    }
+
     public void front5() {
         v4bL.setPosition(1 - front5);
         v4bR.setPosition(front5);
@@ -464,6 +466,7 @@ public class Lift implements Subsystem {
         v4bL.setPosition(1 - front1);
         v4bR.setPosition(front1);
     }
+
 
     public void slidesHigh() {
         setLiftPosition(LiftState.HIGH,0);
@@ -545,6 +548,24 @@ public class Lift implements Subsystem {
 
     public static double rpmToVelocity(double rpm) {
         return rpm * GEAR_RATIO * 2 * Math.PI * SPOOL_SIZE_IN / 60.0;
+    }
+
+
+    public double stateToVirtual4bar(States stackState) {
+        switch (stackState) {
+            case STACK_1:
+                return front1;
+            case STACK_2:
+                return front2;
+            case STACK_3:
+                return front3;
+            case STACK_4:
+                return front4;
+            case STACK_5:
+                return front5;
+            default:
+                return front1;
+        }
     }
 
     public States nextInStack(States stackState) {
@@ -630,7 +651,7 @@ public class Lift implements Subsystem {
     }
 
 
-        @Override
+    @Override
     public Telemetry telemetry() {
         return null;
     }
