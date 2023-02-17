@@ -18,7 +18,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+/*
 package org.firstinspires.ftc.teamcode.auton;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -35,11 +35,12 @@ import java.util.ArrayList;
 
 @Config
 @TeleOp
-public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
+public class AprilTag extends LinearOpMode {
     OpenCvCamera camera;
-    AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    AprilTagDetectionPipeline aprilTagDetectionPipeline = new AprilTagDetectionPipeline(0.166, 578.272, 578.272, 402.145, 221.506);
 
     static final double FEET_PER_METER = 3.28084;
+
 
     // Lens intrinsics
     // UNITS ARE PIXELS
@@ -58,7 +59,9 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
     int MIDDLE = 12;
     int RIGHT = 13;
 
-    int tagOfInterest;
+    int signalPosition;
+
+    ArrayList<AprilTagDetection> currentDetections = new ArrayList<>();
 
     @Override
     public void runOpMode() {
@@ -80,29 +83,40 @@ public class AprilTagAutonomousInitDetectionExample extends LinearOpMode {
         });
     }
     int detections = 0;
-    public April_Tag_States visionLoop() {
-        //currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-        ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-        detections = currentDetections.size();
-        if(currentDetections.size() != 0){
 
-            for(AprilTagDetection tag : currentDetections){
-                if(tag.id == LEFT){
-                    return April_Tag_States.ONE;
-                } else if(tag.id == MIDDLE){
-                    return April_Tag_States.TWO;
-                } else if(tag.id == RIGHT){
-                    return April_Tag_States.THREE;
+    public void visionLoop() {
+        currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+        detections = currentDetections.size();
+        if(currentDetections.size() != 0) {
+            for (AprilTagDetection tag : currentDetections) {
+                if (tag.id == LEFT) {
+                    //return April_Tag_States.ONE;
+                    signalPosition = 1;
+                    break;
+                } else if (tag.id == MIDDLE) {
+                    //return April_Tag_States.TWO;
+                    signalPosition = 2;
+                    break;
+                } else {
+                    //return April_Tag_States.THREE;
+                    signalPosition = 3;
+                    break;
                 }
             }
         }
-        return April_Tag_States.ZERO;
+        //return April_Tag_States.THREE;
+
     }
 
     public enum April_Tag_States {
         ONE,
         TWO,
-        THREE,
-        ZERO
+        THREE
+
+    }
+    public int getSignalPos(){
+        return signalPosition;
     }
 }
+
+ */

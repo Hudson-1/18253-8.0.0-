@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -23,29 +22,37 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Config
-public class VisionPole implements Subsystem {
+public class VisionPoleRevised implements Subsystem {
 
     // Configurable Vision Variables
-    public static int webcamHeight = 240;
-    public static int webcamWidth = 320;
+    public static int webcamHeight = 448; // was 240
+    public static int webcamWidth = 800; // was 320
     public static double FOV = 55.0;            // FOV of the webcam
     public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
     public static double offset = 0.1;          // offset from pole surface to robot
     public static double knownDistance = 12.0;  // Known distance to estimate the focal length
     public static double knownImageWidth = 26.0; // pole width in the image
-
-    // Current color it is detecting is yellow.
-    public static double hueMin = 30;  // was 0
-    public static double hueMax = 120; // was 100
-    public static double saturationMin = 100;  // was 110
-    public static double saturationMax = 255;
-    public static double valueMin = 100; // was 140
-    public static double valueMax = 255;
     private double distanceFromPoleCenterToImageCenter;
     private double widthOfTheClosestPole;
     private int numberOfContours;
+
+    //backlog of frames to average out to reduce noise
+    ArrayList<double[]> frameList;
+    //these are public static to be tuned in dashboard
+    public static double strictLowS = 130;
+    public static double strictHighS = 200;
+    public static double hueMin = 16;  // was 20
+    public static double hueMax = 30; // was 32
+    public static double saturationMin = 70;  // was 70
+    public static double saturationMax = 255;
+    public static double valueMin = 80; // was 80
+    public static double valueMax = 255;
+
+    public VisionPoleRevised() {
+        frameList = new ArrayList<>();
+    }
+
 
     OpenCvCamera webcam;
     private VisionPipeline visionPipeline;
@@ -57,14 +64,14 @@ public class VisionPole implements Subsystem {
         visionPipeline = new VisionPipeline();
 
         // Create a new Webcam instance and get the visionPipeline
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam1"));
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam2"));
         webcam.setPipeline(visionPipeline);
 
         // Open the camera and start processing the frames from the camera
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(webcamWidth, webcamHeight, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override
@@ -90,33 +97,68 @@ public class VisionPole implements Subsystem {
     //
     class VisionPipeline extends OpenCvPipeline {
 
-        private Mat workingMatrix = new Mat();
+        private final Mat workingMatrix = new Mat();
 
         @Override
         public Mat processFrame(Mat input) {
-            input.copyTo(workingMatrix);
+            Mat mat = new Mat();
 
-            if (workingMatrix.empty()) { // If the frame is empty, just return
+            //blur mat
+            Imgproc.GaussianBlur(input, mat, new Size(5.0, 15.0), 0.00);
+            if (mat.empty()) {
                 return input;
             }
 
-            // Here we set the filters and manipulate the image:
+            //mat turns into HSV value
+            Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2HSV);
 
-            // These filter out everything but yellow, and turn it into black and white
-            Imgproc.GaussianBlur(workingMatrix, workingMatrix, new Size(5.0, 15.0), 0.00);
-            Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_BGR2HSV);
-            Core.inRange(workingMatrix, new Scalar(hueMin, saturationMin, valueMin),
-                    new Scalar(hueMax, saturationMax, valueMax), workingMatrix);
+            // lenient bounds will filter out near yellow, this should filter out all near yellow things(tune this if needed)
+            Scalar lowHSV = new Scalar(hueMin, saturationMin, valueMin); // lenient lower bound HSV for yellow
+            Scalar highHSV = new Scalar(hueMax, saturationMax, valueMax); // lenient higher bound HSV for yellow
 
-            // This finds the edges
-            Imgproc.Canny(workingMatrix, workingMatrix, 100, 300);
+            Mat thresh = new Mat();
 
-            // This finds the contours
+            // Get a black and white image of yellow objects
+            Core.inRange(mat, lowHSV, highHSV, thresh);
+
+            Mat masked = new Mat();
+            //color the white portion of thresh in with HSV from mat
+            //output into masked
+            Core.bitwise_and(mat, mat, masked, thresh);
+            //calculate average HSV values of the white thresh values
+            Scalar average = Core.mean(masked, thresh);
+
+            Mat scaledMask = new Mat();
+            //scale the average saturation to 150
+            masked.convertTo(scaledMask, -1, 150 / average.val[1], 0);
+
+            Mat scaledThresh = new Mat();
+            //you probably want to tune this
+            Scalar strictLowHSV = new Scalar(0, strictLowS, 0); //strict lower bound HSV for yellow
+            Scalar strictHighHSV = new Scalar(255, strictHighS, 255); //strict higher bound HSV for yellow
+            //apply strict HSV filter onto scaledMask to get rid of any yellow other than pole
+            Core.inRange(scaledMask, strictLowHSV, strictHighHSV, scaledThresh);
+
+            Mat finalMask = new Mat();
+            //color in scaledThresh with HSV, output into finalMask(only useful for showing result)(you can delete)
+            Core.bitwise_and(mat, mat, finalMask, scaledThresh);
+
+            Mat edges = new Mat();
+            //detect edges(only useful for showing result)(you can delete)
+            Imgproc.Canny(scaledThresh, edges, 100, 200);
+
+            //contours, apply post processing to information
             List<MatOfPoint> contours = new ArrayList<>();
             Mat hierarchy = new Mat();
-            Imgproc.findContours(workingMatrix, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+            //find contours, input scaledThresh because it has hard edges
+            Imgproc.findContours(scaledThresh, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
             int maxWidth = 0;
             Rect maxRect = new Rect();
+
+            //list of frames to reduce inconsistency, not too many so that it is still real-time, change the number from 5 if you want
+            if (frameList.size() > 5) {
+                frameList.remove(0);
+            }
 
             numberOfContours = contours.size();
 
@@ -131,13 +173,27 @@ public class VisionPole implements Subsystem {
                     maxRect = boundingRect;
                 }
 
-                // Release the temp objects
                 c.release(); // releasing the buffer of the contour, since after use, it is no longer needed
                 contour.release(); // releasing the buffer of the copy of the contour, since after use, it is no longer needed
             }
 
-            // Release the temp objects
-            hierarchy.release();
+            //release all the data
+            input.release();
+            scaledThresh.copyTo(input);
+            scaledThresh.release();
+            scaledMask.release();
+            mat.release();
+            masked.release();
+            edges.release();
+            thresh.release();
+            finalMask.release();
+
+            // change the return to whatever mat you want
+            // for example, if I want to look at the lenient thresh:
+            // return thresh;
+            // note that you must not do thresh.release() if you want to return thresh
+            // you also need to release the input if you return thresh(release as much as possible)
+            //return input;
 
             // Save the width of the closest pole to widthOfTheClosestPole in pixels
             widthOfTheClosestPole = maxWidth;
@@ -147,7 +203,7 @@ public class VisionPole implements Subsystem {
             // otherwise, it is at the right side of the image center
             distanceFromPoleCenterToImageCenter = maxRect.x + (maxRect.width / 2.0) - (webcamWidth / 2.0);
 
-            return workingMatrix;
+            return input;
         }
     }
 
@@ -184,5 +240,4 @@ public class VisionPole implements Subsystem {
     }
 
 }
-
 
