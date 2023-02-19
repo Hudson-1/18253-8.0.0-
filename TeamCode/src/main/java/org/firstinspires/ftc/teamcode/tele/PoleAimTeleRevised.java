@@ -64,7 +64,8 @@ public class PoleAimTeleRevised extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        VisionPoleRevised visionPole = new VisionPoleRevised();
+        // VisionPoleRevised visionPole = new VisionPoleRevised();
+        VisionPole visionPole = new VisionPole();
         visionPole.init(hardwareMap);
 
         while (opModeIsActive()) {
@@ -146,6 +147,8 @@ public class PoleAimTeleRevised extends LinearOpMode {
                 if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                     gamepad1.rumbleBlips(3);
                     currentMode = states.DRIVER_CONTROL;
+                } else {
+                    sleep(timer);
                 }
             }
 
