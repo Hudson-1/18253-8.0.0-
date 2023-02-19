@@ -23,7 +23,7 @@ public class PoleAimTeleRevised extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
     public static double angleRange = 6.0;     // smallest angle range that we can turn
-    public static double distanceRange = 4.0;  // smallest distance range that we can move
+    public static double distanceRange = 3.0;  // smallest distance range that we can move
     public static double distanceDelta = 1.0;
     static int timer = 500;             // milliseconds that we sleep for
 
@@ -64,8 +64,7 @@ public class PoleAimTeleRevised extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        // VisionPoleRevised visionPole = new VisionPoleRevised();
-        VisionPole visionPole = new VisionPole();
+        VisionPoleRevised visionPole = new VisionPoleRevised();
         visionPole.init(hardwareMap);
 
         while (opModeIsActive()) {
@@ -94,6 +93,7 @@ public class PoleAimTeleRevised extends LinearOpMode {
                 );
             } else {
                 boolean actions = false;
+                boolean done = false;
 
                 // Get the angle that we need to turn
                 double angle = 0 - visionPole.getAngle(); // we need to negate this value so the robot can understand
@@ -139,12 +139,13 @@ public class PoleAimTeleRevised extends LinearOpMode {
                         drive.followTrajectorySequence(Distance);
 
                         actions = true;
+                        done = true;
                     }
                 }
 
                 telemetry.update();
 
-                if (!actions) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
+                if ((!actions) || done) {     // If there are no actions being taken, we consider the job is done. Give back to the driver control mode.
                     gamepad1.rumbleBlips(3);
                     currentMode = states.DRIVER_CONTROL;
                 } else {

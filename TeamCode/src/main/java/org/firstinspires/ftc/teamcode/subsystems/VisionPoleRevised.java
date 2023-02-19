@@ -32,7 +32,7 @@ public class VisionPoleRevised implements Subsystem {
     public static double poleDiameter = 1.05;   // Actual size of the Pole's diameter in inches
     public static double offset = 0.1;          // offset from pole surface to robot
     public static double knownDistance = 12.0;  // Known distance to estimate the focal length
-    public static double knownImageWidth = 26.0; // pole width in the image
+    public static double knownImageWidth = 90.0; // pole width in the image
     private double distanceFromPoleCenterToImageCenter;
     private double widthOfTheClosestPole;
     private int numberOfContours;
@@ -40,10 +40,10 @@ public class VisionPoleRevised implements Subsystem {
     //backlog of frames to average out to reduce noise
     ArrayList<double[]> frameList;
     //these are public static to be tuned in dashboard
-    public static double strictLowS = 130;
-    public static double strictHighS = 200;
-    public static double hueMin = 16;  // was 20
-    public static double hueMax = 30; // was 32
+    public static double strictLowS = 140; // was 130
+    public static double strictHighS = 255; // was 200
+    public static double hueMin = 20;  // was 16
+    public static double hueMax = 33; // was 30
     public static double saturationMin = 70;  // was 70
     public static double saturationMax = 255;
     public static double valueMin = 80; // was 80
@@ -116,6 +116,11 @@ public class VisionPoleRevised implements Subsystem {
             Scalar lowHSV = new Scalar(hueMin, saturationMin, valueMin); // lenient lower bound HSV for yellow
             Scalar highHSV = new Scalar(hueMax, saturationMax, valueMax); // lenient higher bound HSV for yellow
 
+            /* the original value from the sample code
+            Scalar lowHSV = new Scalar(20, 70, 80); // lenient lower bound HSV for yellow
+            Scalar highHSV = new Scalar(32, 255, 255); // lenient higher bound HSV for yellow
+            */
+
             Mat thresh = new Mat();
 
             // Get a black and white image of yellow objects
@@ -134,8 +139,9 @@ public class VisionPoleRevised implements Subsystem {
 
             Mat scaledThresh = new Mat();
             //you probably want to tune this
-            Scalar strictLowHSV = new Scalar(0, strictLowS, 0); //strict lower bound HSV for yellow
+            Scalar strictLowHSV = new Scalar(0, strictLowS, 150); //strict lower bound HSV for yellow
             Scalar strictHighHSV = new Scalar(255, strictHighS, 255); //strict higher bound HSV for yellow
+
             //apply strict HSV filter onto scaledMask to get rid of any yellow other than pole
             Core.inRange(scaledMask, strictLowHSV, strictHighHSV, scaledThresh);
 
