@@ -115,9 +115,10 @@ import java.util.ArrayList;
             Pose2d startPose = new Pose2d(-36, -64, Math.toRadians(270));
             drive.setPoseEstimate(startPose);
 
-            double parkingOption3 = -24; // TODO edit this
-            double parkingOption2 = .5; // TODO edit this
-            double parkingOption1 = 24; // TODO edit this
+
+            double parkingOption3 = -20; // TODO edit this
+            double parkingOption2 = 5; // TODO edit this
+            double parkingOption1 = 29; // TODO edit this
 
             double chosenTarget = parkingOption2;
 
@@ -216,71 +217,71 @@ waitForStart();
                     .splineTo(new Vector2d(-36, -36), Math.toRadians(90))
                     .UNSTABLE_addTemporalMarkerOffset(-1, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
                     .UNSTABLE_addTemporalMarkerOffset(-.9, lift::back)
-                    .splineTo(new Vector2d(-28, -8), Math.toRadians(20))
+                    .splineTo(new Vector2d(-28, -8), Math.toRadians(30))
                     .addTemporalMarker(lift::release)
                     .setReversed(false)
                     .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                     .UNSTABLE_addTemporalMarkerOffset( .5, lift::front5)
                     .UNSTABLE_addTemporalMarkerOffset(.6, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                     .UNSTABLE_addTemporalMarkerOffset(1.6, lift::grab)
-                    .UNSTABLE_addTemporalMarkerOffset(1.8, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
-                    .UNSTABLE_addTemporalMarkerOffset(2.0, lift::back)
-                    .splineTo(new Vector2d(-60, -14), Math.toRadians(180))
+                    .splineTo(new Vector2d(-60, -16), Math.toRadians(180))
+                    .UNSTABLE_addTemporalMarkerOffset(0, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
+                    .UNSTABLE_addTemporalMarkerOffset(.2, lift::back)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(-.3))
                     .setReversed(true)
-                    //   .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                    .splineTo(new Vector2d(-29, -9), Math.toRadians(45))
+                    .splineTo(new Vector2d(-29, -9), Math.toRadians(50))
                     .addTemporalMarker(lift::release)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(0))
                     .setReversed(false)
+                    //cycle of dis
                     .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                     .UNSTABLE_addTemporalMarkerOffset( .5, lift::front4)
                     .UNSTABLE_addTemporalMarkerOffset(.6, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                     .UNSTABLE_addTemporalMarkerOffset(1.6, lift::grab)
-                    .UNSTABLE_addTemporalMarkerOffset(1.8, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
-                    .UNSTABLE_addTemporalMarkerOffset(2.0, lift::back)
-                    .splineTo(new Vector2d(-62, -14), Math.toRadians(180))
+                    .splineTo(new Vector2d(-62, -16), Math.toRadians(180))
+                    .UNSTABLE_addTemporalMarkerOffset(0, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
+                    .UNSTABLE_addTemporalMarkerOffset(.2, lift::back)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(-.3))
                     .setReversed(true)
-                    .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                    .splineTo(new Vector2d(-29, -9), Math.toRadians(45))
+                    .splineTo(new Vector2d(-29, -9), Math.toRadians(50))
                     .addTemporalMarker(lift::release)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(0))
                     .setReversed(false)
+                    //cycle of dis
                     .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                     .UNSTABLE_addTemporalMarkerOffset( .5, lift::front3)
                     .UNSTABLE_addTemporalMarkerOffset(.6, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                     .UNSTABLE_addTemporalMarkerOffset(1.6, lift::grab)
-                    .UNSTABLE_addTemporalMarkerOffset(1.8, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
-                    .UNSTABLE_addTemporalMarkerOffset(2.0, lift::back)
-                    .splineTo(new Vector2d(-64, -14), Math.toRadians(180))
+                    .splineTo(new Vector2d(-64, -16), Math.toRadians(180))
+                    .UNSTABLE_addTemporalMarkerOffset(0, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
+                    .UNSTABLE_addTemporalMarkerOffset(.2, lift::back)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(-.3))
                     .setReversed(true)
-                    .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
                     .splineTo(new Vector2d(-29, -9), Math.toRadians(55))
                     .addTemporalMarker(lift::release)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(0))
                     .setReversed(false)
+                    //cycle of dis
                     .UNSTABLE_addTemporalMarkerOffset(0, lift::intakeout)
                     .UNSTABLE_addTemporalMarkerOffset( .5, lift::front2)
                     .UNSTABLE_addTemporalMarkerOffset(.6, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
-                    .UNSTABLE_addTemporalMarkerOffset(1.6, lift::grab)
-                    .UNSTABLE_addTemporalMarkerOffset(1.8, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
-                    .UNSTABLE_addTemporalMarkerOffset(2.0, lift::back)
-                    .splineTo(new Vector2d(-66, -14), Math.toRadians(180))
+                    .UNSTABLE_addTemporalMarkerOffset(1.8, lift::grab)
+                    .splineTo(new Vector2d(-66, -16), Math.toRadians(180))
+                    .UNSTABLE_addTemporalMarkerOffset(0, () -> lift.setLiftPosition(Lift.LiftState.HIGH, 0))
+                    .UNSTABLE_addTemporalMarkerOffset(.2, lift::back)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(-.3))
                     .setReversed(true)
-                    .UNSTABLE_addTemporalMarkerOffset(0.2, lift::back)
-                    .splineTo(new Vector2d(-29, -9), Math.toRadians(55))
+                    .splineTo(new Vector2d(-29, -9), Math.toRadians(63))
                     .addTemporalMarker(lift::release)
+                    .UNSTABLE_addTemporalMarkerOffset(0, ()->intake.setPower(0))
                     .setReversed(false)
                     .forward(9)
-                    .turn(Math.toRadians(-35))
+                    .turn(Math.toRadians(-63))
                     .UNSTABLE_addTemporalMarkerOffset(0, lift::intakein)
                     .UNSTABLE_addTemporalMarkerOffset(0.55, lift::front1)
                     .UNSTABLE_addTemporalMarkerOffset(0.75, () -> lift.setLiftPosition(Lift.LiftState.REST, 0))
                     .forward(chosenTarget)
-                    // .addTemporalMarker(intake::toggleIntake)
-                    // .addTemporalMarker(intake::)
-                    .UNSTABLE_addTemporalMarkerOffset(0.2, intake::triggerIntake)
-                    //bring arm
-                    //end deposit
-                    // .lineTo(new Vector2d(0, -50))
-                    //  .lineToLinearHeading(chosenTarget)
-                    //.back(50)
+
                     .build();
 
             drive.followTrajectorySequenceAsync(Traj);

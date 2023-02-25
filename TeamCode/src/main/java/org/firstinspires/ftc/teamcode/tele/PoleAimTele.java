@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.VisionPole;
 import org.openftc.easyopencv.OpenCvPipeline;
-
+@Disabled
 @Config
 @TeleOp
 public class PoleAimTele extends LinearOpMode {

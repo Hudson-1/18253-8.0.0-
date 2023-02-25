@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-//@Disabled
+@Disabled
 @Config
 @Autonomous
 public class AutoLeft extends LinearOpMode {

@@ -23,7 +23,7 @@ public class PoleAimTeleRevised extends LinearOpMode {
     boolean toggle = false;
     boolean lastPress = false;
     public static double angleRange = 6.0;     // smallest angle range that we can turn
-    public static double distanceRange = 3.0;  // smallest distance range that we can move
+    public static double distanceRange = 7.0;  // smallest distance range that we can move
     public static double distanceDelta = 1.0;
     static int timer = 500;             // milliseconds that we sleep for
 
